@@ -1,0 +1,16 @@
+bzip2
+dist*
+gettext
+libffi
+ncurses
+openssl
+prebuilts
+Python
+readline
+sqlite
+xz
+zlib
+*.tar.gz
+*.tar.xz
+*.zip
+.DS_Store
