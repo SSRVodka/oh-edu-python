@@ -18,9 +18,15 @@ Using Ubuntu hosting environment as an example. The OpenHarmony (Edu) SDK needs 
 
   ```shell
   sudo apt install \
-      build-essential \
-      texinfo \
-      po4a
+  	git \
+  	wget \
+  	unzip \
+  	build-essential \
+  	autoconf \
+  	autopoint \
+  	libtool \
+  	texinfo \
+  	po4a
   ```
 
 - Execute `. /ohos-build.sh -d` (the `-d` parameter means to download the source code of the various dependency libraries) to start the build, the product is located in the `dist/` directory in the same parent directory.

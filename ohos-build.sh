@@ -1,7 +1,8 @@
 #!/bin/bash
 set -Eeuo pipefail
 
-cd $(dirname $(readlink -f $0))
+CUR_DIR=$(dirname $(readlink -f $0))
+cd $CUR_DIR
 
 DOWNLOAD=0
 while getopts "d" arg
@@ -38,8 +39,8 @@ CMAKE_TOOLCHAIN_CONFIG=${OHOS_SDK}/native/build/cmake/ohos.toolchain.cmake
 OHOS_CPU=x86_64
 OHOS_ARCH=x86_64
 
-TARGET_ROOT=/home/xhw/Desktop/OH/oh-edu-python/dist
-TEST_DIR=/home/xhw/Desktop/OH/oh-edu-python/test-only
+TARGET_ROOT=${CUR_DIR}/dist
+TEST_DIR=${CUR_DIR}/test-only
 
 HOST_LIBC=${OHOS_SDK}/native/sysroot/usr/lib/${OHOS_CPU}-linux-ohos/libc.so
 BUILD_PLATFORM_PYTHON=${OHOS_SDK}/native/llvm/python3/bin/python3

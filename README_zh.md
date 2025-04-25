@@ -17,7 +17,13 @@
 
   ```shell
   sudo apt install \
+  	git \
+  	wget \
+  	unzip \
   	build-essential \
+  	autoconf \
+  	autopoint \
+  	libtool \
   	texinfo \
   	po4a
   ```
