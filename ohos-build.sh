@@ -62,7 +62,7 @@ export PROFDATA=${OHOS_SDK}/native/llvm/bin/llvm-profdata
 export CFLAGS="-fPIC -D__MUSL__=1 -I${TARGET_ROOT}/include -I${TARGET_ROOT}/include/lzma -I${TARGET_ROOT}/include/ncursesw -I${TARGET_ROOT}/include/readline -I${TARGET_ROOT}/ssl/include"
 export CXXFLAGS=${CFLAGS}
 export CPPFLAGS=${CXXFLAGS}
-export LDFLAGS="-fuse-ld=lld -L${TARGET_ROOT}/lib -L${TARGET_ROOT}/ssl/lib64 -lcrypt"
+export LDFLAGS="-fuse-ld=lld -L${TARGET_ROOT}/lib -L${TARGET_ROOT}/ssl/lib64"
 export LDSHARED="${CC} ${LDFLAGS} -shared"
 
 export PATH=${OHOS_SDK}/native/llvm/bin:${OHOS_SDK}/native/toolchains:$PATH
@@ -178,6 +178,22 @@ sed -i '/MULTIARCH=\$($CC --print-multiarch 2>\/dev\/null)/a PLATFORM_TRIPLET=$M
 make -j
 make install
 cd ..
+
+# Patch the needed info in *.so
+LOST_LIBRARY=libpython3.11.so
+DIST_LIB_DYLOAD_PATH=${CUR_DIR}/dist/lib/python3.11/lib-dynload
+find "${DIST_LIB_DYLOAD_PATH}" -type f -name "*.so" -print0 | while IFS= read -r -d '' sofile; do
+    echo "patch dynamic-linked file: $sofile"
+    if ! patchelf --add-needed "${LOST_LIBRARY}" "$sofile"; then
+        echo "ERROR: failed to process file $sofile" >&2
+    fi
+done
+
+#source ${CUR_DIR}/pytorch_env/bin/activate
+#curl https://bootstrap.pypa.io/pip/get-pip.py -o get-pip.py -k
+#python get-pip.py
+#python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+#python -m pip install --no-binary :all: Cython
 
 # restore old $PATH value
 export PATH=$OLD_PATH

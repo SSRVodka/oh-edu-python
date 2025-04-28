@@ -34,7 +34,7 @@
 
 ## 已知问题
 
-- `lib-dynload` 下的 Python 模块无法加载 `libpython3.so` 中的符号；
+- [已解决] `lib-dynload` 下的 Python 模块无法加载 `libpython3.so` 中的符号；
 
 - `libreadline.so` 通过 Clang 工具链的编译，但是还是出现无法识别符号的问题。怀疑是 OpenHarmony 编译工具链或 musl libc 系统库自身问题：
 

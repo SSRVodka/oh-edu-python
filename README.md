@@ -35,7 +35,7 @@ Using Ubuntu hosting environment as an example. The OpenHarmony (Edu) SDK needs 
 
 ## Known Issues
 
-- Python module under `lib-dynload` fails to load symbols in `libpython3.so`; 
+- [Fixed] Python module under `lib-dynload` fails to load symbols in `libpython3.so`; 
 
 - ` libreadline.so` is compiled with the Clang toolchain, but still has the problem of not recognizing symbols. Suspect OpenHarmony build toolchain or musl libc system library itself: 
 
