@@ -2,7 +2,7 @@
 
 [中文文档](./README_zh.md)
 
-This repository ports Python3 (currently 3.11.4) to OpenHarmony Edu 5.0.2. 
+This repository ports Python3 (currently 3.11.4) and some third-party libraries that depend on C/C++ modules to OpenHarmony Edu 5.0.2.
 
 <img src="imgs/cover.png" /> 
 
@@ -33,9 +33,13 @@ Using Ubuntu hosting environment as an example. The OpenHarmony (Edu) SDK needs 
 
 
 
-## Known Issues
+If you want to build third-party Python libraries, you need to mimic `pypkgs-download.sh` to download the relevant repositories, and mimic `scipy-build.sh` to build the third-party libraries manually.
 
-- [Fixed] Python module under `lib-dynload` fails to load symbols in `libpython3.so`; 
+This repository provides some sample built third-party libraries (`numpy`, `scipy`), see Release.
+
+
+
+## Known Issues
 
 - ` libreadline.so` is compiled with the Clang toolchain, but still has the problem of not recognizing symbols. Suspect OpenHarmony build toolchain or musl libc system library itself: 
 

@@ -1,7 +1,7 @@
 
 # 适用于 OpenHarmony Edu 平台的 Python3
 
-本仓库将 Python3 (目前 3.11.4) 移植到 OpenHarmony Edu 5.0.2。
+本仓库将 Python3 (目前 3.11.4) 以及部分依赖于 C/C++ 模块的第三方库移植到 OpenHarmony Edu 5.0.2。
 
 <img src="imgs/cover.png" />
 
@@ -32,9 +32,13 @@
 
 
 
-## 已知问题
+如果你想要构建第三方 Python 库，则需要模仿 `pypkgs-download.sh` 下载相关仓库，模仿 `scipy-build.sh` 手动构建第三方库。
 
-- [已解决] `lib-dynload` 下的 Python 模块无法加载 `libpython3.so` 中的符号；
+本仓库提供了部分构建的第三方库样例（`numpy`、`scipy`），参见 Release。
+
+
+
+## 已知问题
 
 - `libreadline.so` 通过 Clang 工具链的编译，但是还是出现无法识别符号的问题。怀疑是 OpenHarmony 编译工具链或 musl libc 系统库自身问题：
 

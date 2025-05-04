@@ -2,7 +2,10 @@
 
 set -Eeuo pipefail
 
-rm -rf zlib libffi bzip2 xz readline openssl sqlite ncurses gettext Python
+CACHE_FILE=__hw_cache.tar.gz
+DIRS="zlib libffi bzip2 xz readline openssl sqlite ncurses gettext Python BPython OpenBLAS"
+
+rm -rf $DIRS
 
 wget_source() {
     wget -O tmp $1
@@ -19,6 +22,12 @@ wget_source() {
     rm tmp
 }
 
+if [ -f __hw_cache.tar.gz ]; then
+
+tar -zxpvf __hw_cache.tar.gz
+
+else
+
 wget_source https://github.com/madler/zlib/archive/refs/tags/v1.3.1.zip
 mv zlib-1.3.1 zlib
 
@@ -31,7 +40,7 @@ mv bzip2-1.0.8 bzip2
 wget_source https://github.com/tukaani-project/xz/archive/refs/tags/v5.8.1.zip
 mv xz-5.8.1 xz
 
-wget_source https://git.savannah.gnu.org/cgit/readline.git/snapshot/readline-8.2.tar.gz
+wget_source https://ftp.gnu.org/gnu/readline/readline-8.2.tar.gz
 mv readline-8.2 readline
 
 wget_source https://github.com/openssl/openssl/archive/refs/tags/openssl-3.5.0.zip
@@ -48,4 +57,11 @@ mv gettext-0.24 gettext
 
 wget_source https://www.python.org/ftp/python/3.11.4/Python-3.11.4.tgz
 mv Python-3.11.4 Python
+cp -r Python BPython
 
+wget_source https://github.com/OpenMathLib/OpenBLAS/archive/refs/tags/v0.3.29.zip
+mv OpenBLAS-0.3.29 OpenBLAS
+
+tar -zcpvf $CACHE_FILE $DIRS
+
+fi

@@ -21,8 +21,9 @@ if [ "$DOWNLOAD" -eq 1 ]; then
 fi
 
 OLD_PATH=$PATH
+OLD_LD_LIBPATH=${LD_LIBRARY_PATH:=""}
 
-trap "export PATH=${OLD_PATH}; unset CC CXX AS LD LDXX LLD STRIP RANLIB OBJDUMP OBJCOPY READELF NM AR PROFDATA CFLAGS CXXFLAGS CPPFLAGS LDFLAGS LDSHARED" ERR SIGINT SIGTERM
+trap "export PATH=${OLD_PATH}; export LD_LIBRARY_PATH=${OLD_LD_LIBPATH}; unset CC CXX AS LD LDXX LLD STRIP RANLIB OBJDUMP OBJCOPY READELF NM AR PROFDATA CFLAGS CXXFLAGS CPPFLAGS LDFLAGS LDSHARED" ERR SIGINT SIGTERM
 
 if [ -z "${OHOS_SDK}" ]; then
 	echo "[TIPS] please set OHOS_SDK env first"
@@ -32,18 +33,32 @@ fi
 CMAKE_BIN=${OHOS_SDK}/native/build-tools/cmake/bin/cmake
 CMAKE_TOOLCHAIN_CONFIG=${OHOS_SDK}/native/build/cmake/ohos.toolchain.cmake
 
-# OHOS_CPU=aarch64
-# OHOS_ARCH=arm64-v8a
+#OHOS_CPU=aarch64
+#OHOS_ARCH=arm64-v8a
 # OHOS_CPU=arm
 # OHOS_ARCH=armeabi-v7a
 OHOS_CPU=x86_64
 OHOS_ARCH=x86_64
 
-TARGET_ROOT=${CUR_DIR}/dist
+
+TARGET_ROOT=${CUR_DIR}/dist.${OHOS_CPU}
 TEST_DIR=${CUR_DIR}/test-only
 
+# Note: Fortran compiler should be changed with ARCH
+# Use gnu here instead of ohos: code gen only
+FC=${OHOS_CPU}-linux-gnu-gfortran-11
+mkdir -p ${TARGET_ROOT}/lib
+cp gfortran.libs.${OHOS_CPU}/* ${TARGET_ROOT}/lib
+
+
+# Build build-python first!
+# It must be the same with build-build-python.sh
+BUILD_PYTHON_DIST=${CUR_DIR}/build-python.dist
+BUILD_PYTHON_DIST_PYTHON=${BUILD_PYTHON_DIST}/bin/python3
+./build-build-python.sh ${BUILD_PYTHON_DIST}
+
+
 HOST_LIBC=${OHOS_SDK}/native/sysroot/usr/lib/${OHOS_CPU}-linux-ohos/libc.so
-BUILD_PLATFORM_PYTHON=${OHOS_SDK}/native/llvm/python3/bin/python3
 
 export CC="${OHOS_SDK}/native/llvm/bin/clang --target=${OHOS_CPU}-linux-ohos"
 export CXX="${OHOS_SDK}/native/llvm/bin/clang++ --target=${OHOS_CPU}-linux-ohos"
@@ -59,13 +74,14 @@ export READELF=${OHOS_SDK}/native/llvm/bin/llvm-readelf
 export NM=${OHOS_SDK}/native/llvm/bin/llvm-nm
 export AR=${OHOS_SDK}/native/llvm/bin/llvm-ar
 export PROFDATA=${OHOS_SDK}/native/llvm/bin/llvm-profdata
-export CFLAGS="-fPIC -D__MUSL__=1 -I${TARGET_ROOT}/include -I${TARGET_ROOT}/include/lzma -I${TARGET_ROOT}/include/ncursesw -I${TARGET_ROOT}/include/readline -I${TARGET_ROOT}/ssl/include"
+export CFLAGS="-fPIC -D__MUSL__=1 -D__OPENHARMONY__=1 -I${TARGET_ROOT}/include -I${TARGET_ROOT}/include/lzma -I${TARGET_ROOT}/include/ncursesw -I${TARGET_ROOT}/include/readline -I${TARGET_ROOT}/ssl/include"
 export CXXFLAGS=${CFLAGS}
 export CPPFLAGS=${CXXFLAGS}
-export LDFLAGS="-fuse-ld=lld -L${TARGET_ROOT}/lib -L${TARGET_ROOT}/ssl/lib64"
+export LDFLAGS="-fuse-ld=lld -L${TARGET_ROOT}/lib -L${TARGET_ROOT}/ssl/lib64 -L${CUR_DIR}/gfortran.libs.${OHOS_CPU}"
 export LDSHARED="${CC} ${LDFLAGS} -shared"
 
 export PATH=${OHOS_SDK}/native/llvm/bin:${OHOS_SDK}/native/toolchains:$PATH
+
 
 # add -shared to C/CXXFLAGS
 cd zlib
@@ -75,7 +91,7 @@ make install
 cd ..
 
 cd openssl
-./Configure shared zlib \
+./Configure linux-${OHOS_CPU} shared zlib \
 	--prefix=${TARGET_ROOT}/ssl \
 	--openssldir=${TARGET_ROOT}/ssl
 make -j
@@ -158,6 +174,7 @@ cd ..
 
 
 cd Python
+export LD_LIBRARY_PATH=${BUILD_PYTHON_DIST}/lib:$LD_LIBRARY_PATH
 # patch configure: ohos triplet not supported
 sed -i '/MULTIARCH=\$($CC --print-multiarch 2>\/dev\/null)/a PLATFORM_TRIPLET=$MULTIARCH' configure
 ./configure --target=${OHOS_CPU}-linux-musl \
@@ -166,7 +183,7 @@ sed -i '/MULTIARCH=\$($CC --print-multiarch 2>\/dev\/null)/a PLATFORM_TRIPLET=$M
 	--disable-ipv6 \
 	--enable-shared \
 	--with-libc=${HOST_LIBC} \
-	--with-build-python=${BUILD_PLATFORM_PYTHON} \
+	--with-build-python=${BUILD_PYTHON_DIST_PYTHON} \
 	--with-ensurepip=install \
 	--with-readline=readline \
 	--with-openssl=${TARGET_ROOT}/ssl \
@@ -177,11 +194,12 @@ sed -i '/MULTIARCH=\$($CC --print-multiarch 2>\/dev\/null)/a PLATFORM_TRIPLET=$M
 	CC="${CC}" CXX="${CXX}" RANLIB="${RANLIB}" STRIP="${STRIP}" AR="${AR}" CFLAGS="${CFLAGS}" CPPFLAGS="${CPPFLAGS}" LD="${LD}" LDXX="${LDXX}" NM="${NM}" OBJDUMP="${OBJDUMP}" OBJCOPY="${OBJCOPY}" READELF="${READELF}" PROFDATA="${PROFDATA}" LDFLAGS="${LDFLAGS}" 
 make -j
 make install
+export LD_LIBRARY_PATH=$OLD_LD_LIBPATH
 cd ..
 
 # Patch the needed info in *.so
 LOST_LIBRARY=libpython3.11.so
-DIST_LIB_DYLOAD_PATH=${CUR_DIR}/dist/lib/python3.11/lib-dynload
+DIST_LIB_DYLOAD_PATH=${TARGET_ROOT}/lib/python3.11/lib-dynload
 find "${DIST_LIB_DYLOAD_PATH}" -type f -name "*.so" -print0 | while IFS= read -r -d '' sofile; do
     echo "patch dynamic-linked file: $sofile"
     if ! patchelf --add-needed "${LOST_LIBRARY}" "$sofile"; then
@@ -189,11 +207,19 @@ find "${DIST_LIB_DYLOAD_PATH}" -type f -name "*.so" -print0 | while IFS= read -r
     fi
 done
 
-#source ${CUR_DIR}/pytorch_env/bin/activate
-#curl https://bootstrap.pypa.io/pip/get-pip.py -o get-pip.py -k
-#python get-pip.py
-#python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-#python -m pip install --no-binary :all: Cython
+# Add TARGET=ARMV8 if $OHOS_CPU==aarch64
+cd OpenBLAS
+make BINARY=64 CC="$CC" FC="$FC" CROSS=1 HOSTCC=gcc
+make install PREFIX=${TARGET_ROOT}
+#${CMAKE_BIN} \
+#	-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_CONFIG} \
+#	-DCMAKE_C_FLAGS="${CFLAGS}" \
+#	-DCMAKE_CXX_FLAGS="${CXXFLAGS}" \
+#	-DLINK_FLAGS="${LDFLAGS}" \
+#	-DBUILD_TESTING=OFF \
+#	-B cmake_build
+#${CMAKE_BIN} --build cmake_build --config Release
+cd ..
 
 # restore old $PATH value
 export PATH=$OLD_PATH
