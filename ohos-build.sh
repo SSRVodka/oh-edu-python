@@ -98,6 +98,8 @@ make -j
 make install
 cd ..
 
+. ffmpeg-build.sh
+
 cd libffi
 ./autogen.sh
 ./configure --target=${OHOS_CPU}-linux-musl \

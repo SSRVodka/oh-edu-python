@@ -3,7 +3,7 @@
 set -Eeuo pipefail
 
 CACHE_FILE=__hw_cache.tar.gz
-DIRS="zlib libffi bzip2 xz readline openssl sqlite ncurses gettext Python BPython OpenBLAS"
+DIRS="zlib libffi bzip2 xz readline openssl sqlite ncurses gettext Python BPython OpenBLAS libaacplus x264 alsa-lib ffmpeg"
 
 rm -rf $DIRS
 
@@ -13,6 +13,8 @@ wget_source() {
         unzip tmp
     elif [[ $1 == *.tar.gz ]]; then
         tar -zxpvf tmp
+    elif [[ $1 == *.bz2 ]]; then
+        tar -xpvf tmp
     elif [[ $1 == *.tgz ]]; then
         tar -xpvf tmp
     else
@@ -61,6 +63,18 @@ cp -r Python BPython
 
 wget_source https://github.com/OpenMathLib/OpenBLAS/archive/refs/tags/v0.3.29.zip
 mv OpenBLAS-0.3.29 OpenBLAS
+
+wget_source http://tipok.org.ua/downloads/media/aacplus/libaacplus/libaacplus-2.0.2.tar.gz
+mv libaacplus-2.0.2 libaacplus
+
+wget_source https://code.videolan.org/videolan/x264/-/archive/master/x264-master.tar.bz2
+mv x264-master x264
+
+wget_source http://www.alsa-project.org/files/pub/lib/alsa-lib-1.2.14.tar.bz2
+mv alsa-lib-1.2.14 alsa-lib
+
+wget_source https://github.com/FFmpeg/FFmpeg/archive/refs/tags/n4.3.9.zip
+mv FFmpeg-n4.3.9 ffmpeg
 
 tar -zcpvf $CACHE_FILE $DIRS
 
