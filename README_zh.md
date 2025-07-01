@@ -1,9 +1,14 @@
 
 # 适用于 OpenHarmony EDU 平台的 Python3
 
-本仓库将 Python3 (目前 3.11.4) 以及部分依赖于 C/C++ 模块的第三方库移植到 OpenHarmony Edu 5.0.2。
+本仓库将 Python3 (目前 3.11.4) 以及部分依赖于 C/C++ 模块的第三方库移植到 OpenHarmony (EDU) 5.0.2。
 
+## 进度
 
+- [x] Python 解释器，及常见 native 库：libaacplus、x264、alsa-lib、ffmpeg、bzip2、gettext、libffi、ncurses、OpenBLAS、openssl、readline、sqlite3、xz、zlib；
+- [x] Python 第三方库：numpy、scipy、opencv、onnxruntime；
+- [ ] ……
+- [ ] 如果您有需要构建的第三方库 / 有构建的思路和方法，欢迎提 issue / PR，共同建设。
 
 ## 背景
 
@@ -32,13 +37,7 @@ OpenHarmony (OH) 作为面向全场景、全连接时代的下一代开源操作
 
 解决方案是先构建一些通用的交叉编译脚本工具（例如配置 OH  相关的交叉编译工具链参数、必须且通用的环境变量等等繁琐细节），然后通过人力总结各个常见第三方库的构建工具类型（区分  meson、pypi-build、`setup.py` 等），针对这些类型总结对应的常见问题以及需要特殊配置的地方。后期计划抽象出一个较为通用的 Python  on OH 的交叉编译脚本工具库。
 
-本项目的目前已经定义了一些通用的交叉编译脚本工具，正在积累常见第三方库的构建方式。已经交叉编译的：
-
-- Python 或第三方库需要的 Native 依赖：libaacplus、x264、alsa-lib、ffmpeg、bzip2、gettext、libffi、ncurses、OpenBLAS、openssl、readline、sqlite3、xz、zlib；
-- Python 解释器；
-- Python 第三方库：numpy、scipy、opencv、onnxruntime；
-
-如果您有需要构建的第三方库，欢迎提 issue，共同建设。
+本项目的目前已经定义了一些通用的交叉编译脚本工具，正在积累常见第三方库的构建方式。
 
 ## 如何构建
 
@@ -63,9 +62,20 @@ OpenHarmony (OH) 作为面向全场景、全连接时代的下一代开源操作
   	po4a
   ```
 
-- 执行 `./ohos-build.sh -d`（`-d` 参数表示下载各种依赖库的源码）开始编译，产物位于同父目录下的 `dist/` 目录中。
+- 执行 `./build-python.sh -d` 开始编译 Python 解释器；
 
-如果你想要构建第三方 Python 库，则需要模仿 `pypkgs-download.sh` 下载相关仓库，模仿 `scipy-build.sh` 手动构建第三方库。
+- 再执行 `./build-pypkg-xxx -d` 来编译指定的 Python 包。注意：
+
+  - 如果是 OpenCV 则还需要编译 ffmpeg：`./build-ffmpeg.sh`；
+
+  - 如果是 SciPy 则建议编译 OpenBLAS 加速：`./build-openblas.sh`；
+
+- `-d` 参数表示下载各种依赖库的源码，只有第一次下载需要。如果您想要手动处理下载，可以不添加 `-d`，先执行 `download-*.sh`；
+
+- native library 产物位于 `dist.<arch>`，python wheel 产物位于 `dist.wheel`（有些实际上位于 `xxx(包名)/dist` 目录）；
+
+
+如果你想要构建第三方 Python 库，则需要下载相关仓库，模仿 `build-pypkg-xxx.sh` 手动构建第三方库。
 
 本仓库提供了部分构建的第三方库样例（`numpy`、`scipy`），参见 Release。
 

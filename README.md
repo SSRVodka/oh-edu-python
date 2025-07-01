@@ -4,7 +4,12 @@
 
 This repository ports Python3 (currently 3.11.4) and some third-party libraries that depend on C/C++ modules to OpenHarmony Edu 5.0.2. 
 
+## Progress
 
+- [x] Python interpreter, and common native libraries: libaacplus, x264, alsa-lib, ffmpeg, bzip2, gettext, libffi, ncurses, OpenBLAS, openssl, readline, sqlite3, xz, zlib;
+- [x] Python third-party libraries: numpy, scipy, opencv, onnxruntime;
+- [ ] ......
+- [ ] If you have third-party libraries to build / ideas and methods to build, please feel free to raise issues / PRs.
 
 ## Background
 
@@ -33,13 +38,7 @@ This project adopts a phased, incremental evolution of the technical route, comb
 
 The solution is to first build some common cross-compilation script tools (e.g., configure OH-related cross-compilation toolchain parameters, necessary and common environment variables, and other tedious details), then summarize the types of common third-party libraries' build tools (meson, pypi-build, `setup.py`, etc.), and summarize the corresponding common problems and special configurations required by these types. and where special configuration is needed. In the future, we plan to abstract a more general Python on OH cross-compile scripting toolkit.
 
-The project has already defined some common cross-compilation scripting tools, and is accumulating a list of common third-party libraries. Already cross-compiled:
-
-- Native dependencies needed for Python or third-party libraries: libaacplus, x264, alsa-lib, ffmpeg, bzip2, gettext, libffi, ncurses, OpenBLAS, openssl, readline, sqlite3, xz, zlib;
-- Python interpreter;
-- Python third-party libraries: numpy, scipy, opencv, onnxruntime;
-
-If you have third-party libraries that need to be built, please feel free to raise an issue.
+The project has already defined some common cross-compilation scripting tools, and is accumulating a list of common third-party libraries.
 
 ## How to build 
 
@@ -62,13 +61,22 @@ Using Ubuntu hosting environment as an example. The OpenHarmony (Edu) SDK needs 
   	po4a
   ```
 
-- Execute `. /ohos-build.sh -d` (the `-d` parameter means to download the source code of the various dependency libraries) to start the build, the product is located in the `dist/` directory in the same parent directory.
+- Execute `./build-python.sh -d` to start building the Python interpreter;
+
+- Execute `./build-pypkg-xxx -d` to build the specified Python package. Note:
+  - For OpenCV you also need to build ffmpeg: `./build-ffmpeg.sh`;
+
+  - For SciPy it is recommended to build OpenBLAS to speed things up: `./build-openblas.sh`;
+
+- The `-d` parameter indicates that downloading the source code of the various dependent libraries is required only for the first download. If you want to handle the download manually, you can skip the `-d` and run `download-*.sh` first;
+
+- The native library output is located in `dist.<arch>`, and the python wheel output is located in `dist.wheel` (some of them are actually located in the `xxx(package name)/dist` directory);
 
 
 
-If you want to build third-party Python libraries, you need to mimic `pypkgs-download.sh` to download the relevant repositories, and mimic `scipy-build.sh` to build the third-party libraries manually.
+If you want to build third-party Python libraries, you need to download the repositories and build them manually by mimicking `build-pypkg-xxx.sh`.
 
-This repository provides some sample built third-party libraries (`numpy`, `scipy`), see Release.
+This repository provides some examples of built third-party libraries (`numpy`, `scipy`), see Release.
 
 
 

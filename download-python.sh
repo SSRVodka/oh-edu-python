@@ -24,9 +24,9 @@ wget_source() {
     rm tmp
 }
 
-if [ -f __hw_cache.tar.gz ]; then
+if [ -f ${CACHE_FILE} ]; then
 
-tar -zxpvf __hw_cache.tar.gz
+tar -zxpvf ${CACHE_FILE}
 
 else
 

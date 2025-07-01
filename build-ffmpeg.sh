@@ -1,10 +1,16 @@
 #!/bin/bash
-# WARNING: this file should only be used & called by ohos-build.sh
 
-export PKG_CONFIG_PATH=${TARGET_ROOT}/lib/pkgconfig
-export PKG_CONFIG_LIBDIR=${TARGET_ROOT}/lib:${TARGET_ROOT}/ssl/lib64:${OHOS_SDK}/native/sysroot/usr/lib/${OHOS_CPU}-linux-ohos
+_FFMPEG_BACKUP_PKG_CONFIG_PATH=${PKG_CONFIG_PATH}
+_FFMPEG_BACKUP_PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}
 
-cd libaacplus
+. setup.sh
+
+# override config in setup.sh
+export PKG_CONFIG_PATH=${TARGET_ROOT}/lib/pkgconfig:${_FFMPEG_BACKUP_PKG_CONFIG_PATH}
+export PKG_CONFIG_LIBDIR=${TARGET_ROOT}/lib:${TARGET_ROOT}/ssl/lib64:${_FFMPEG_BACKUP_PKG_CONFIG_LIBDIR}
+
+
+pushd libaacplus
 CFLAGS="${CFLAGS} -std=gnu89" ./autogen.sh --target=${OHOS_CPU}-linux-musl \
 	--host=${OHOS_CPU}-linux-musl \
 	--build=x86_64-pc-linux-gnu \
@@ -13,9 +19,9 @@ CFLAGS="${CFLAGS} -std=gnu89" ./autogen.sh --target=${OHOS_CPU}-linux-musl \
     ac_cv_file__bin_bash=no
 make
 make install
-cd ..
+popd
 
-cd x264
+pushd x264
 ./configure --target=${OHOS_CPU}-linux-musl \
     --host=${OHOS_CPU}-linux-musl \
     --build=x86_64-pc-linux-gnu \
@@ -25,9 +31,9 @@ cd x264
     --enable-shared
 make -j
 make install
-cd ..
+popd
 
-cd alsa-lib
+pushd alsa-lib
 # patch versionsort64
 find . -name "*.c" -type f -exec sed -i 's/^#if defined(_GNU_SOURCE) \&\& !defined(__NetBSD__) \&\& !defined(__FreeBSD__) \&\& !defined(__OpenBSD__) \&\& !defined(__DragonFly__) \&\& !defined(__sun) \&\& !defined(__ANDROID__)$/#if defined(_GNU_SOURCE) \&\& !defined(__NetBSD__) \&\& !defined(__FreeBSD__) \&\& !defined(__OpenBSD__) \&\& !defined(__DragonFly__) \&\& !defined(__sun) \&\& !defined(__ANDROID__) \&\& !defined(__OPENHARMONY__)/g' {} \;
 ./configure --target=${OHOS_CPU}-linux-musl \
@@ -36,9 +42,9 @@ find . -name "*.c" -type f -exec sed -i 's/^#if defined(_GNU_SOURCE) \&\& !defin
 	--prefix=${TARGET_ROOT}
 make -j
 make install
-cd ..
+popd
 
-cd ffmpeg
+pushd ffmpeg
 ./configure --enable-cross-compile \
     --arch="${OHOS_ARCH}" \
     --nm="${NM}" \
@@ -56,5 +62,11 @@ cd ffmpeg
     --extra-libs=-ldl
 make -j
 make install
-unset PKG_CONFIG_PATH PKG_CONFIG_LIBDIR
-cd ..
+popd
+
+
+. cleanup.sh
+
+export PKG_CONFIG_PATH=${_FFMPEG_BACKUP_PKG_CONFIG_PATH}
+export PKG_CONFIG_LIBDIR=${_FFMPEG_BACKUP_PKG_CONFIG_LIBDIR}
+
