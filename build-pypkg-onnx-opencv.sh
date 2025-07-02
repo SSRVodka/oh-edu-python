@@ -28,7 +28,7 @@ pip install wheel
 
 cd onnxruntime
 if [[ ! -f patched ]]; then
-	git apply ${CUR_DIR}/patches/onnxruntime_pkg.patch
+	git apply ${CUR_DIR}/patches/oh-onnxruntime.patch
 	touch patched
 fi
 PATH=${OHOS_SDK}/native/build-tools/cmake/bin:$PATH ./build.sh \
