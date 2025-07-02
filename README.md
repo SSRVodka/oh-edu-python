@@ -64,10 +64,12 @@ Using Ubuntu hosting environment as an example. The OpenHarmony (Edu) SDK needs 
 - Execute `./build-python.sh -d` to start building the Python interpreter;
 
 - Execute `./build-pypkg-xxx -d` to build the specified Python package. Note:
-  - For OpenCV you also need to build ffmpeg: `./build-ffmpeg.sh`;
+  - In the case of OpenCV you also need to build ffmpeg: `./build-ffmpeg.sh`, and you need to run `./build-pypkg-numpy-scipy.sh` to compile and install numpy to crossenv;
 
-  - For SciPy it is recommended to build OpenBLAS to speed things up: `./build-openblas.sh`;
+  - In the case of SciPy, it is recommended to compile OpenBLAS to speed things up: `./build-openblas.sh`;
 
+  - If onnxruntime is required, since it is currently only supported up to 1.18.2 and therefore requires numpy version < 2, you may need to modify the build script to compile a lower version of the numpy package.
+  
 - The `-d` parameter indicates that downloading the source code of the various dependent libraries is required only for the first download. If you want to handle the download manually, you can skip the `-d` and run `download-*.sh` first;
 
 - The native library output is located in `dist.<arch>`, and the python wheel output is located in `dist.wheel` (some of them are actually located in the `xxx(package name)/dist` directory);

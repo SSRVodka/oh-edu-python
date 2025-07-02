@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 CACHE_FILE=__hw_cache2.tar.gz
-DIRS="cython numpy scipy onnxruntime opencv grpc"
+DIRS="cython numpy scipy onnxruntime opencv opencv-python grpc"
 
 rm -rf $DIRS
 
@@ -52,6 +52,13 @@ popd
 
 wget_source https://github.com/opencv/opencv/archive/refs/tags/4.11.0.zip
 mv opencv-4.11.0 opencv
+
+git clone https://github.com/opencv/opencv-python.git
+pushd opencv-python
+git switch 4.x
+git submodule sync && git submodule update --init --recursive
+popd
+
 
 git clone -b v1.73.0 https://github.com/grpc/grpc
 pushd grpc

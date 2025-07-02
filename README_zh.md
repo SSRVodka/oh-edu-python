@@ -66,9 +66,11 @@ OpenHarmony (OH) 作为面向全场景、全连接时代的下一代开源操作
 
 - 再执行 `./build-pypkg-xxx -d` 来编译指定的 Python 包。注意：
 
-  - 如果是 OpenCV 则还需要编译 ffmpeg：`./build-ffmpeg.sh`；
+  - 如果是 OpenCV 则还需要编译 ffmpeg：`./build-ffmpeg.sh`，并且需要事先执行 `./build-pypkg-numpy-scipy.sh` 编译并安装 numpy 到 crossenv；
 
   - 如果是 SciPy 则建议编译 OpenBLAS 加速：`./build-openblas.sh`；
+
+  - 如果需要 onnxruntime，因为目前仅支持到 1.18.2，因此需要 numpy 版本 < 2，您可能需要修改编译脚本编译低版本的 numpy 包。
 
 - `-d` 参数表示下载各种依赖库的源码，只有第一次下载需要。如果您想要手动处理下载，可以不添加 `-d`，先执行 `download-*.sh`；
 

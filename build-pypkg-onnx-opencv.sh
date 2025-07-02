@@ -64,9 +64,11 @@ PATH=${OHOS_SDK}/native/build-tools/cmake/bin:$PATH ./build.sh \
 cmake --install ${BUILD_DIRNAME}/${ONNXRUNTIME_BUILD_TYPE}
 cd ..
 
-################################## Build opencv pkg ##################################
+################################## Build opencv & opencv pkg ##################################
 
-cd opencv
+pushd opencv-python
+
+pushd opencv
 $OHOS_SDK/native/build-tools/cmake/bin/cmake \
 	-DCMAKE_C_FLAGS="${CFLAGS}" \
 	-DCMAKE_CXX_FLAGS="${CXXFLAGS}" \
@@ -83,22 +85,30 @@ cmake --build ohos-build --config Release -- -j20
 cmake --install ohos-build
 
 patchelf --add-needed libpython${PY_VERSION}.so ${OUTPUT_DIR}/lib/python${PY_VERSION}/site-packages/cv2/python-${PY_VERSION}/cv2.cpython-${PY_VERSION_CODE}-${ARCH}-linux-ohos.so
-cd ..
 
+popd
+
+pip install scikit-build
+# pip wheel . --verbose
+python setup.py bdist_wheel
+
+popd
 
 ################################## Retrieve Python Wheels ##################################
 
-_PKGNAME=opencv_python-4.11.0.86
-_PREP_WHEEL_INFO=${_PKGNAME}.dist-info
-_WHEEL_ZIP_NAME=${_PKGNAME}-cp${PY_VERSION_CODE}-cp${PY_VERSION_CODE}-linux_${ARCH}.zip
+# _PKGNAME=opencv_python-4.11.0.86
+# _PREP_WHEEL_INFO=${_PKGNAME}.dist-info
+# _WHEEL_ZIP_NAME=${_PKGNAME}-cp${PY_VERSION_CODE}-cp${PY_VERSION_CODE}-linux_${ARCH}.zip
 
-cp -r ${OUTPUT_DIR}/lib/python${PY_VERSION}/site-packages/cv2 .
-./RECORD.GEN.sh cv2 ${_PREP_WHEEL_INFO} > RECORD
-mv RECORD ${_PREP_WHEEL_INFO}
-zip -r ${_WHEEL_ZIP_NAME} ${_PREP_WHEEL_INFO} cv2
-rm -rf cv2
-mv ${_WHEEL_ZIP_NAME} ${OUTPUT_WHEEL_DIR}/${_PKGNAME}-cp${PY_VERSION_CODE}-cp${PY_VERSION_CODE}-linux_${ARCH}.whl
+# cp -r ${OUTPUT_DIR}/lib/python${PY_VERSION}/site-packages/cv2 .
+# ./RECORD.GEN.sh cv2 ${_PREP_WHEEL_INFO} > RECORD
+# mv RECORD ${_PREP_WHEEL_INFO}
+# zip -r ${_WHEEL_ZIP_NAME} ${_PREP_WHEEL_INFO} cv2
+# rm -rf cv2
+# mv ${_WHEEL_ZIP_NAME} ${OUTPUT_WHEEL_DIR}/${_PKGNAME}-cp${PY_VERSION_CODE}-cp${PY_VERSION_CODE}-linux_${ARCH}.whl
+
 cp onnxruntime/${BUILD_DIRNAME}/${ONNXRUNTIME_BUILD_TYPE}/dist/* ${OUTPUT_WHEEL_DIR}
+cp opencv-python/dist/* ${OUTPUT_WHEEL_DIR}
 
 
 . cleanup-pypkg-env.sh

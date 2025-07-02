@@ -16,6 +16,13 @@ x264
 xz
 zlib
 OpenBLAS
+cython
+numpy
+scipy
+onnxruntime
+opencv
+opencv-python
+grpc
 *.tar.gz
 *.tar.xz
 *.zip
