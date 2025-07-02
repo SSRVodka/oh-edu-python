@@ -14,10 +14,14 @@ fi
 export LD_LIBRARY_PATH=${BUILD_PYTHON_DIST}/lib:$LD_LIBRARY_PATH
 
 
-NUMPY_GT_V2=0
+# NOTE: You also need to change download-pypkgs.sh if you change this
 # Numpy version >= 2.0
-# NUMPY_LIBROOT=${HOST_SITE_PKGS}/numpy/_core
-NUMPY_LIBROOT=${HOST_SITE_PKGS}/numpy/core
+NUMPY_GT_V2=1
+if [ $NUMPY_GT_V2 -eq 0 ]; then
+    NUMPY_LIBROOT=${HOST_SITE_PKGS}/numpy/core
+else
+    NUMPY_LIBROOT=${HOST_SITE_PKGS}/numpy/_core
+fi
 
 #export PKG_CONFIG_SYSROOT_DIR=${OHOS_SDK}/native/sysroot
 export PKG_CONFIG_PATH=${HOST_PYTHON_DIST}/lib/pkgconfig:${NUMPY_LIBROOT}/lib/pkgconfig

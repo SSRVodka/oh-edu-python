@@ -6,6 +6,8 @@
 
 ################################## Build Dependencies For NumPy ##################################
 
+info "building dependencies for NumPy..."
+
 # MUST use cython for cross-python
 cd cython
 pip install -v --no-binary :all: .
@@ -17,6 +19,8 @@ pip install -v --no-binary :all: build
 #build-pip install meson-python
 
 ################################## Build NumPy ##################################
+
+info "building NumPy"
 
 cd numpy
 rm -rf ./dist
@@ -33,6 +37,8 @@ cd ..
 
 ################################## Build Dependencies For SciPy ##################################
 
+info "building dependencies for SciPy..."
+
 # use build-python (in crossenv) f2py: see scipy/scipy/meson.build#L203
 build-pip install -v numpy pybind11
 # use dependency numpy at cross-python
@@ -40,6 +46,12 @@ pip install -v pythran
 
 
 ################################## Build SciPy ##################################
+
+info "building SciPy..."
+
+info "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}"
+info "PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}"
+info "PKG_CONFIG_SYSTEM_IGNORE_PATH=${PKG_CONFIG_SYSTEM_IGNORE_PATH}"
 
 cd scipy
 rm -rf ./dist
@@ -52,9 +64,16 @@ sed -i "s|version_link_args = \['-Wl,--version-script=' + _linker_script\]|versi
 #meson compile --verbose
 #meson install
 #cd ..
-python -m build --wheel -Csetup-args="--cross-file=${CUR_DIR}/meson-scripts/scipy-build.meson"
+if [ $NUMPY_GT_V2 -eq 0 ]; then
+    python -m build --wheel -Csetup-args="--cross-file=${CUR_DIR}/meson-scripts/scipy-build.meson"
+else
+    python -m build --wheel -Csetup-args="--cross-file=${CUR_DIR}/meson-scripts/scipy-build.numpy2.meson"
+fi
 pip install -v ./dist/*.whl
 cd ..
+
+cp numpy/dist/* ${PYPKG_OUTPUT_WHEEL_DIR}
+cp scipy/dist/* ${PYPKG_OUTPUT_WHEEL_DIR}
 
 
 . cleanup-pypkg-env.sh

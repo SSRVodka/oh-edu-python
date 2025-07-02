@@ -45,6 +45,10 @@ make install
 popd
 
 pushd ffmpeg
+if [[ ! -f patched ]]; then
+    patch -N configure < ${CUR_DIR}/patches/oh-ffmpeg.patch >&2
+    touch patched
+fi
 ./configure --enable-cross-compile \
     --arch="${OHOS_ARCH}" \
     --nm="${NM}" \
@@ -59,6 +63,7 @@ pushd ffmpeg
 	--prefix="${TARGET_ROOT}" \
     --enable-gpl \
     --enable-nonfree \
+    --enable-shared \
     --extra-libs=-ldl
 make -j
 make install

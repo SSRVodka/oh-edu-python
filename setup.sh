@@ -107,6 +107,12 @@ sed -i "s/x86_64/${OHOS_ARCH}/g" meson-scripts/ohos-build.meson
 sed -i "s/aarch64/${OHOS_ARCH}/g" meson-scripts/ohos-build.meson
 sed -i "s/x86_64/${OHOS_ARCH}/g" meson-scripts/scipy-build.meson
 sed -i "s/aarch64/${OHOS_ARCH}/g" meson-scripts/scipy-build.meson
+sed -i "s/x86_64/${OHOS_ARCH}/g" meson-scripts/scipy-build.numpy2.meson
+sed -i "s/aarch64/${OHOS_ARCH}/g" meson-scripts/scipy-build.numpy2.meson
+
+escaped_dir=$(printf '%s\n' "$CUR_DIR" | sed -e 's/[&/\]/\\&/g')
+sed -i "s|proj_root[[:space:]]*=[[:space:]]*'[^']*'|proj_root='$escaped_dir'|g" meson-scripts/scipy-build.meson
+sed -i "s|proj_root[[:space:]]*=[[:space:]]*'[^']*'|proj_root='$escaped_dir'|g" meson-scripts/scipy-build.numpy2.meson
 
 PY_CROSS_ROOT=${CUR_DIR}/crossenv_${OHOS_ARCH}
 HOST_SITE_PKGS=${PY_CROSS_ROOT}/cross/lib/python${PY_VERSION}/site-packages
