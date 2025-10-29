@@ -1,0 +1,29 @@
+--- /home/xhw/Desktop/OH/oh-cross-toolchain/ohos-sdk/14/native/build/cmake/ohos.toolchain.cmake	2025-10-28 16:29:04.247994132 +0800
++++ /home/xhw/Desktop/OH/oh-cross-toolchain/ohos-sdk/14/native/build/cmake/ohos.toolchain.cmake.lock	2001-01-01 00:00:00.000000000 +0800
+@@ -232,7 +232,7 @@
+ 
+ # set the cmake global cflags
+ set(CMAKE_C_FLAGS "" CACHE STRING "Flags for all build types.")
+-set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} -D__MUSL__ -Wno-unused-command-line-argument -D__OPENHARMONY__ -D__OHOS__")
++set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} -D__MUSL__")
+ 
+ set(CMAKE_C_FLAGS_DEBUG "" CACHE STRING "Flags for debug variant builds.")
+ set(CMAKE_C_FLAGS_DEBUG "${OHOS_DEBUG_COMPILER_FLAGS} ${CMAKE_C_FLAGS_DEBUG}")
+@@ -242,7 +242,7 @@
+ 
+ # set the cmake global cppflags
+ set(CMAKE_CXX_FLAGS "" CACHE STRING "Flags for all build types.")
+-set(CMAKE_CXX_FLAGS "${OHOS_C_COMPILER_FLAGS} ${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -D__MUSL__ -D__OPENHARMONY__ -D__OHOS__ -Wno-unused-command-line-argument")
++set(CMAKE_CXX_FLAGS "${OHOS_C_COMPILER_FLAGS} ${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -D__MUSL__")
+ 
+ set(CMAKE_CXX_FLAGS_DEBUG "" CACHE STRING "Flags for debug variant builds.")
+ set(CMAKE_CXX_FLAGS_DEBUG "${OHOS_DEBUG_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}")
+@@ -252,7 +252,7 @@
+ 
+ # set the cmake global asmflags
+ set(CMAKE_ASM_FLAGS "" CACHE STRING "Flags for all build types.")
+-set(CMAKE_ASM_FLAGS "${OHOS_ASM_COMPILER_FLAGS} ${CMAKE_ASM_FLAGS} -D__MUSL__ -Wno-unused-command-line-argument")
++set(CMAKE_ASM_FLAGS "${OHOS_ASM_COMPILER_FLAGS} ${CMAKE_ASM_FLAGS} -D__MUSL__")
+ 
+ set(CMAKE_ASM_FLAGS_DEBUG "" CACHE STRING "Flags for debug variant builds.")
+ set(CMAKE_ASM_FLAGS_DEBUG "${OHOS_DEBUG_COMPILER_FLAGS} ${CMAKE_ASM_FLAGS_DEBUG}")

@@ -1,6 +1,23 @@
 #!/bin/bash
 set -Eeuo pipefail
 
+DOWNLOAD=0
+while getopts "d" arg
+do
+    case $arg in
+    d)
+        DOWNLOAD=1
+        ;;
+    ?)
+        warn "Unknown argument: $arg. Ignored."
+        ;;
+    esac
+done
+
+if [ "$DOWNLOAD" -eq 1 ]; then
+    ./download-python.sh
+fi
+
 ################################# Build build-python first! #################################
 
 # NOTE: keep same with setup.sh
@@ -18,12 +35,7 @@ cd ..
 
 ################################# Setup Envs #################################
 
-
 . setup.sh
-
-if [ "$DOWNLOAD" -eq 1 ]; then
-    ./download-python.sh
-fi
 
 ################################# Build Python Dependencies #################################
 

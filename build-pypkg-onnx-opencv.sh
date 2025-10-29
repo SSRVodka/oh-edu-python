@@ -26,7 +26,7 @@ pip install wheel
 
 ################################## Build onnxruntime pkg ##################################
 
-cd onnxruntime
+pushd onnxruntime
 if [[ ! -f patched ]]; then
 	git apply ${CUR_DIR}/patches/oh-onnxruntime.patch
 	touch patched
@@ -62,7 +62,7 @@ PATH=${OHOS_SDK}/native/build-tools/cmake/bin:$PATH ./build.sh \
    onnxruntime_BUILD_UNIT_TESTS=OFF
 
 cmake --install ${BUILD_DIRNAME}/${ONNXRUNTIME_BUILD_TYPE}
-cd ..
+popd
 
 ################################## Build opencv & opencv pkg ##################################
 

@@ -1,14 +1,28 @@
 #!/bin/bash
 
+
+DOWNLOAD=0
+while getopts "d" arg
+do
+    case $arg in
+    d)
+        DOWNLOAD=1
+        ;;
+    ?)
+        warn "Unknown argument: $arg. Ignored."
+        ;;
+    esac
+done
+
+if [ "$DOWNLOAD" -eq 1 ]; then
+    ./download-pypkgs.sh
+fi
+
 _PYPKG_ENV_BACKUP_LD_LIBRARY_PATH=${LD_LIBRARY_PATH}
 _PYPKG_ENV_BACKUP_PKG_CONFIG_PATH=${PKG_CONFIG_PATH}
 _PYPKG_ENV_BACKUP_PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}
 
 . setup.sh
-
-if [ "$DOWNLOAD" -eq 1 ]; then
-    ./download-pypkgs.sh
-fi
 
 # override config in setup.sh
 export LD_LIBRARY_PATH=${BUILD_PYTHON_DIST}/lib:$LD_LIBRARY_PATH

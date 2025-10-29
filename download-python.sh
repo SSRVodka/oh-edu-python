@@ -6,6 +6,7 @@ CACHE_FILE=__hw_cache.tar.gz
 DIRS="zlib libffi bzip2 xz readline openssl sqlite ncurses gettext Python BPython OpenBLAS libaacplus x264 alsa-lib ffmpeg"
 
 rm -rf $DIRS
+exit 0
 
 wget_source() {
     wget -O tmp $1
@@ -57,8 +58,9 @@ mv ncurses-6.5 ncurses
 wget_source https://ftp.gnu.org/pub/gnu/gettext/gettext-0.24.tar.gz
 mv gettext-0.24 gettext
 
-wget_source https://www.python.org/ftp/python/3.11.4/Python-3.11.4.tgz
-mv Python-3.11.4 Python
+wget_source https://www.python.org/ftp/python/3.12.12/Python-3.12.12.tgz
+#wget_source https://www.python.org/ftp/python/3.11.4/Python-3.11.4.tgz
+mv Python-3.12.12 Python
 cp -r Python BPython
 
 wget_source https://github.com/OpenMathLib/OpenBLAS/archive/refs/tags/v0.3.29.zip

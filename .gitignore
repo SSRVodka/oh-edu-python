@@ -23,6 +23,7 @@ onnxruntime
 opencv
 opencv-python
 grpc
+pytorch
 *.tar.gz
 *.tar.xz
 *.zip

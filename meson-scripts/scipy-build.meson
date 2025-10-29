@@ -1,17 +1,18 @@
 [constants]
-ohos_sdk = '/home/xhw/Desktop/OH/oh-cross-toolchain/ohos-sdk/14'
+py_ver = ''
+ohos_sdk = ''
 proj_root=''
 toolchain = ohos_sdk / 'native/llvm/bin'
 sysroot = ohos_sdk / 'native/sysroot'
-host_cpu = 'x86_64'
-host_arch = 'x86_64'
+host_cpu = ''
+host_arch = ''
 dist_root = proj_root/'dist.' + host_arch
 hostpy_root = proj_root/'crossenv_' + host_arch + '/cross'
 buildpy_root = proj_root/'crossenv_' + host_arch + '/build'
 common_flags = ['--sysroot=' + sysroot, '--target=' + host_cpu + '-linux-ohos']
-sitepkg = hostpy_root/'lib/python3.11/site-packages'
-common_c_flags = ['-fPIC', '-D__MUSL__=1', '-I' + dist_root/'include', '-I' + dist_root/'include/python3.11', '-I' + dist_root/'include/lzma', '-I' + dist_root/'include/ncursesw', '-I' + dist_root/'include/readline', '-I' + dist_root/'ssl/include', '-I' + sitepkg/'numpy/core/include']
-common_ld_flags = ['-fuse-ld=lld', '-L' + sysroot/'usr/lib/' + host_cpu + '-linux-ohos', '-L' + dist_root/'lib', '-L' + dist_root/'ssl/lib64', '-lpython3.11', '-L' + sitepkg/'numpy/core/lib']
+sitepkg = hostpy_root/'lib/python' + py_ver + '/site-packages'
+common_c_flags = ['-fPIC', '-D__MUSL__=1', '-I' + dist_root/'include', '-I' + dist_root/'include/python' + py_ver, '-I' + dist_root/'include/lzma', '-I' + dist_root/'include/ncursesw', '-I' + dist_root/'include/readline', '-I' + dist_root/'ssl/include', '-I' + sitepkg/'numpy/core/include']
+common_ld_flags = ['-fuse-ld=lld', '-L' + sysroot/'usr/lib/' + host_cpu + '-linux-ohos', '-L' + dist_root/'lib', '-L' + dist_root/'ssl/lib64', '-lpython' + py_ver, '-L' + sitepkg/'numpy/core/lib']
 
 [built-in options]
 c_args = common_flags + common_c_flags

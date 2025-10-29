@@ -8,19 +8,6 @@ info () { printf "%b%s%b" "\E[1;34m❯ \E[1;36m" "${1:-}" "\E[0m\n"; }
 error () { printf "%b%s%b" "\E[1;31m❯ " "ERROR: ${1:-}" "\E[0m\n" >&2; }
 warn () { printf "%b%s%b" "\E[1;31m❯ " "Warning: ${1:-}" "\E[0m\n" >&2; }
 
-DOWNLOAD=0
-while getopts "d" arg
-do
-    case $arg in
-    d)
-        DOWNLOAD=1
-        ;;
-    ?)
-        warn "Unknown argument: $arg. Ignored."
-        ;;
-    esac
-done
-
 OLD_PATH=$PATH
 OLD_LD_LIBPATH=${LD_LIBRARY_PATH:=""}
 
@@ -34,12 +21,12 @@ fi
 CMAKE_BIN=${OHOS_SDK}/native/build-tools/cmake/bin/cmake
 CMAKE_TOOLCHAIN_CONFIG=${OHOS_SDK}/native/build/cmake/ohos.toolchain.cmake
 
-#OHOS_CPU=aarch64
-#OHOS_ARCH=arm64-v8a
+OHOS_CPU=aarch64
+OHOS_ARCH=arm64-v8a
 # OHOS_CPU=arm
 # OHOS_ARCH=armeabi-v7a
-OHOS_CPU=x86_64
-OHOS_ARCH=x86_64
+# OHOS_CPU=x86_64
+# OHOS_ARCH=x86_64
 
 ARCH=${OHOS_ARCH}
 
@@ -86,8 +73,8 @@ export PKG_CONFIG_LIBDIR=${HOST_SYSROOT}/usr/lib/${OHOS_ARCH}-linux-ohos
 ################################# Python Relative Local Envs #################################
 
 # NOTE: you also need to change download-python.sh if you change this
-PY_VERSION=3.11
-PY_VERSION_CODE=311
+PY_VERSION=3.12
+PY_VERSION_CODE=312
 
 BUILD_PYTHON_DIST=${CUR_DIR}/build-python.dist
 BUILD_PYTHON_DIST_PYTHON=${BUILD_PYTHON_DIST}/bin/python3
@@ -103,12 +90,18 @@ HOST_PIP=$HOST_PYTHON_BIN/pip3
 HOST_MESON=$HOST_PYTHON_BIN/meson
 
 # modify ARCH in meson config
-sed -i "s/x86_64/${OHOS_ARCH}/g" meson-scripts/ohos-build.meson
-sed -i "s/aarch64/${OHOS_ARCH}/g" meson-scripts/ohos-build.meson
-sed -i "s/x86_64/${OHOS_ARCH}/g" meson-scripts/scipy-build.meson
-sed -i "s/aarch64/${OHOS_ARCH}/g" meson-scripts/scipy-build.meson
-sed -i "s/x86_64/${OHOS_ARCH}/g" meson-scripts/scipy-build.numpy2.meson
-sed -i "s/aarch64/${OHOS_ARCH}/g" meson-scripts/scipy-build.numpy2.meson
+update_config() {
+    local filename="$1"
+    sed -i "s/py_ver = '.*'/py_ver = '${PY_VERSION}'/g" "$filename"
+    sed -i "s|ohos_sdk = '.*'|ohos_sdk = '${OHOS_SDK}'|g" "$filename"
+    sed -i "s|proj_root = '.*'|proj_root = '${CUR_DIR}'|g" "$filename"
+    sed -i -e "s/host_cpu = '.*'/host_cpu = '${OHOS_ARCH}'/g" \
+           -e "s/host_arch = '.*'/host_arch = '${OHOS_ARCH}'/g" "$filename"
+}
+
+update_config meson-scripts/ohos-build.meson
+update_config meson-scripts/scipy-build.meson
+update_config meson-scripts/scipy-build.numpy2.meson
 
 escaped_dir=$(printf '%s\n' "$CUR_DIR" | sed -e 's/[&/\]/\\&/g')
 sed -i "s|proj_root[[:space:]]*=[[:space:]]*'[^']*'|proj_root='$escaped_dir'|g" meson-scripts/scipy-build.meson
