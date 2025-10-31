@@ -39,7 +39,7 @@ fi
 
 #export PKG_CONFIG_SYSROOT_DIR=${OHOS_SDK}/native/sysroot
 export PKG_CONFIG_PATH=${HOST_PYTHON_DIST}/lib/pkgconfig:${NUMPY_LIBROOT}/lib/pkgconfig
-export PKG_CONFIG_LIBDIR=${HOST_PYTHON_DIST}/lib:${HOST_SYSROOT}/usr/lib/${ARCH}-linux-ohos:${NUMPY_LIBROOT}/lib
+export PKG_CONFIG_LIBDIR=${HOST_PYTHON_DIST}/lib:${HOST_SYSROOT}/usr/${OHOS_LIBDIR}:${NUMPY_LIBROOT}/lib
 # Use PKG_CONFIG_SYSTEM_IGNORE_PATH in setup.sh
 
 

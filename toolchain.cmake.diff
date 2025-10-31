@@ -1,29 +1,169 @@
---- /home/xhw/Desktop/OH/oh-cross-toolchain/ohos-sdk/14/native/build/cmake/ohos.toolchain.cmake	2025-10-28 16:29:04.247994132 +0800
-+++ /home/xhw/Desktop/OH/oh-cross-toolchain/ohos-sdk/14/native/build/cmake/ohos.toolchain.cmake.lock	2001-01-01 00:00:00.000000000 +0800
-@@ -232,7 +232,7 @@
+--- /home/xhw/Desktop/OH/oh-cross-toolchain/ohos-sdk/15/native/build/cmake/ohos.toolchain.cmake.lock	2001-01-01 00:00:00.000000000 +0800
++++ /home/xhw/Desktop/OH/oh-cross-toolchain/ohos-sdk/15/native/build/cmake/ohos.toolchain.cmake	2025-10-31 11:10:26.282785813 +0800
+@@ -1,4 +1,4 @@
+-# Copyright (c) 2021 Huawei Device Co., Ltd.
++# Copyright (c) 2025 SSRVodka
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+@@ -15,7 +15,7 @@
+ #              locations for compilers and toolchain utilities, and other target
+ #              platform and compiler related information.
  
+-cmake_minimum_required(VERSION 3.6.0)
++cmake_minimum_required(VERSION 3.12)
+ set(CMAKE_SYSTEM_VERSION 1)
+ set(CMAKE_ASM_COMPILER_VERSION 15.0.4)
+ 
+@@ -36,6 +36,8 @@
+ # Common default settings
+ set(OHOS OHOS)
+ set(CMAKE_SYSTEM_NAME OHOS)
++# SSRVodka: Use OHOS mark
++set(OHOS TRUE CACHE BOOL "Target OS is OpenHarmony" FORCE)
+ 
+ if(NOT DEFINED OHOS_PLATFORM_LEVEL)
+   set(OHOS_PLATFORM_LEVEL 1)
+@@ -88,7 +90,7 @@
+ set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+ set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+-list(APPEND CMAKE_FIND_ROOT_PATH "${OHOS_SDK_NATIVE}")
++set(CMAKE_FIND_ROOT_PATH "${OHOS_SDK_NATIVE}/sysroot")
+ 
+ # set the arch abi
+ set(CMAKE_OHOS_ARCH_ABI ${OHOS_ARCH})
+@@ -114,6 +116,10 @@
+ set(CMAKE_CXX_COMPILER_TARGET ${OHOS_LLVM})
+ set(CMAKE_ASM_COMPILER_TARGET ${OHOS_LLVM})
+ 
++
++set(CMAKE_SYSROOT "${OHOS_SDK_NATIVE}/sysroot")
++
++
+ # Export configurable variables for the try_compile() command.
+ set(CMAKE_TRY_COMPILE_PLATFORM_VARIABLES
+   OHOS_SDK_NATIVE
+@@ -230,9 +236,62 @@
+ set(CMAKE_CXX_STANDARD_LIBRARIES_INIT "-lm")
+ set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+ 
++
++set(OHOS_LIBDIR "lib/${CMAKE_SYSTEM_PROCESSOR}-linux-ohos")
++
++set(SSRVODKA_COMMON_CFLAGS)
++# include headers, arch-dep headers, spec macros
++list(APPEND SSRVODKA_COMMON_CFLAGS
++  --target=${CMAKE_SYSTEM_PROCESSOR}-linux-ohos
++  -fPIC
++  -D__MUSL__
++  -D__OHOS__
++  -D__OPENHARMONY__
++  -Wno-unused-command-line-argument
++  -I${OHOS_SDK_NATIVE}/sysroot/usr/include
++  -I${OHOS_SDK_NATIVE}/sysroot/usr/include/${CMAKE_SYSTEM_PROCESSOR}-linux-ohos
++)
++if (DEFINED SSRVODKA_APPEND_COMMON_CFLAGS)
++  separate_arguments(_extra_cflags NATIVE_COMMAND "${SSRVODKA_APPEND_COMMON_CFLAGS}")
++  list(APPEND SSRVODKA_COMMON_CFLAGS ${_extra_cflags})
++endif()
++string(REPLACE ";" " " SSRVODKA_COMMON_CFLAGS "${SSRVODKA_COMMON_CFLAGS}")
++
++
++set(SSRVODKA_COMMON_LINK_FLAGS)
++list(APPEND SSRVODKA_COMMON_LINK_FLAGS
++  --target=${CMAKE_SYSTEM_PROCESSOR}-linux-ohos
++  -fuse-ld=lld
++  -Wl,--sysroot=${CMAKE_SYSROOT}
++  -L${CMAKE_SYSROOT}/usr/${OHOS_LIBDIR}
++  -L${OHOS_SDK_NATIVE}/llvm/${OHOS_LIBDIR}
++)
++if (DEFINED SSRVODKA_APPEND_COMMON_LINK_FLAGS)
++  separate_arguments(_extra_linkflags NATIVE_COMMAND "${SSRVODKA_APPEND_COMMON_LINK_FLAGS}")
++  list(APPEND SSRVODKA_COMMON_LINK_FLAGS ${_extra_linkflags})
++endif()
++string(REPLACE ";" " " SSRVODKA_COMMON_LINK_FLAGS "${SSRVODKA_COMMON_LINK_FLAGS}")
++
++
++set(SSRVODKA_COMMON_ASM_FLAGS)
++list(APPEND SSRVODKA_COMMON_ASM_FLAGS
++  -D__MUSL__
++  -Wno-unused-command-line-argument
++)
++string(REPLACE ";" " " SSRVODKA_COMMON_ASM_FLAGS "${SSRVODKA_COMMON_ASM_FLAGS}")
++
++# SSRVodka:
++# Fix cmake find_package search on OHOS sdk arch-dependent libraries directory
++file(GLOB _pkg_cmake_dirs "${CMAKE_SYSROOT}/usr/${OHOS_LIBDIR}/cmake/*")
++list(APPEND CMAKE_PREFIX_PATH ${_pkg_cmake_dirs})
++# already separated by semicolon(;)
++if (DEFINED SSRVODKA_APPEND_CMAKE_PREFIX_PATH)
++  list(APPEND CMAKE_PREFIX_PATH ${SSRVODKA_APPEND_CMAKE_PREFIX_PATH})
++endif()
++
  # set the cmake global cflags
  set(CMAKE_C_FLAGS "" CACHE STRING "Flags for all build types.")
--set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} -D__MUSL__ -Wno-unused-command-line-argument -D__OPENHARMONY__ -D__OHOS__")
-+set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} -D__MUSL__")
+-set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} -D__MUSL__")
++set(CMAKE_C_FLAGS "${OHOS_C_COMPILER_FLAGS} ${CMAKE_C_FLAGS} ${SSRVODKA_COMMON_CFLAGS}")
  
  set(CMAKE_C_FLAGS_DEBUG "" CACHE STRING "Flags for debug variant builds.")
  set(CMAKE_C_FLAGS_DEBUG "${OHOS_DEBUG_COMPILER_FLAGS} ${CMAKE_C_FLAGS_DEBUG}")
-@@ -242,7 +242,7 @@
+@@ -242,7 +301,7 @@
  
  # set the cmake global cppflags
  set(CMAKE_CXX_FLAGS "" CACHE STRING "Flags for all build types.")
--set(CMAKE_CXX_FLAGS "${OHOS_C_COMPILER_FLAGS} ${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -D__MUSL__ -D__OPENHARMONY__ -D__OHOS__ -Wno-unused-command-line-argument")
-+set(CMAKE_CXX_FLAGS "${OHOS_C_COMPILER_FLAGS} ${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -D__MUSL__")
+-set(CMAKE_CXX_FLAGS "${OHOS_C_COMPILER_FLAGS} ${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} -D__MUSL__")
++set(CMAKE_CXX_FLAGS "${OHOS_C_COMPILER_FLAGS} ${OHOS_CXX_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS} ${SSRVODKA_COMMON_CFLAGS}")
  
  set(CMAKE_CXX_FLAGS_DEBUG "" CACHE STRING "Flags for debug variant builds.")
  set(CMAKE_CXX_FLAGS_DEBUG "${OHOS_DEBUG_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}")
-@@ -252,7 +252,7 @@
+@@ -252,7 +311,7 @@
  
  # set the cmake global asmflags
  set(CMAKE_ASM_FLAGS "" CACHE STRING "Flags for all build types.")
--set(CMAKE_ASM_FLAGS "${OHOS_ASM_COMPILER_FLAGS} ${CMAKE_ASM_FLAGS} -D__MUSL__ -Wno-unused-command-line-argument")
-+set(CMAKE_ASM_FLAGS "${OHOS_ASM_COMPILER_FLAGS} ${CMAKE_ASM_FLAGS} -D__MUSL__")
+-set(CMAKE_ASM_FLAGS "${OHOS_ASM_COMPILER_FLAGS} ${CMAKE_ASM_FLAGS} -D__MUSL__")
++set(CMAKE_ASM_FLAGS "${OHOS_ASM_COMPILER_FLAGS} ${CMAKE_ASM_FLAGS} ${SSRVODKA_COMMON_ASM_FLAGS}")
  
  set(CMAKE_ASM_FLAGS_DEBUG "" CACHE STRING "Flags for debug variant builds.")
  set(CMAKE_ASM_FLAGS_DEBUG "${OHOS_DEBUG_COMPILER_FLAGS} ${CMAKE_ASM_FLAGS_DEBUG}")
+@@ -262,13 +321,13 @@
+ 
+ # set the link flags
+ set(CMAKE_SHARED_LINKER_FLAGS "" CACHE STRING "Linker flags to be used to create shared libraries.")
+-set(CMAKE_SHARED_LINKER_FLAGS "${OHOS_COMMON_LINKER_FLAGS} ${CMAKE_SHARED_LINKER_FLAGS}")
++set(CMAKE_SHARED_LINKER_FLAGS "${OHOS_COMMON_LINKER_FLAGS} ${CMAKE_SHARED_LINKER_FLAGS} ${SSRVODKA_COMMON_LINK_FLAGS} -shared")
+ 
+ set(CMAKE_MODULE_LINKER_FLAGS "" CACHE STRING "Linker flags to be used to create modules.")
+-set(CMAKE_MODULE_LINKER_FLAGS "${OHOS_COMMON_LINKER_FLAGS} ${CMAKE_MODULE_LINKER_FLAGS}")
++set(CMAKE_MODULE_LINKER_FLAGS "${OHOS_COMMON_LINKER_FLAGS} ${CMAKE_MODULE_LINKER_FLAGS} ${SSRVODKA_COMMON_LINK_FLAGS}")
+ 
+ set(CMAKE_EXE_LINKER_FLAGS "" CACHE STRING "Linker flags to be used to create executables.")
+-set(CMAKE_EXE_LINKER_FLAGS "${OHOS_COMMON_LINKER_FLAGS} ${OHOS_EXE_LINKER_FLAGS} ${CMAKE_EXE_LINKER_FLAGS}")
++set(CMAKE_EXE_LINKER_FLAGS "${OHOS_COMMON_LINKER_FLAGS} ${OHOS_EXE_LINKER_FLAGS} ${CMAKE_EXE_LINKER_FLAGS} ${SSRVODKA_COMMON_LINK_FLAGS}")
+ 
+ # set the executable suffix
+ set(HOST_SYSTEM_EXE_SUFFIX)
+@@ -280,9 +339,8 @@
+ set(TOOLCHAIN_ROOT_PATH "${OHOS_SDK_NATIVE}/llvm")
+ set(TOOLCHAIN_BIN_PATH  "${OHOS_SDK_NATIVE}/llvm/bin")
+ 
+-set(CMAKE_SYSROOT "${OHOS_SDK_NATIVE}/sysroot")
+ set(CMAKE_LIBRARY_ARCHITECTURE "${OHOS_TOOLCHAIN_NAME}")
+-list(APPEND CMAKE_SYSTEM_LIBRARY_PATH "/usr/lib/${OHOS_TOOLCHAIN_NAME}")
++# list(APPEND CMAKE_SYSTEM_LIBRARY_PATH "/usr/lib/${OHOS_TOOLCHAIN_NAME}")
+ set(CMAKE_C_COMPILER_EXTERNAL_TOOLCHAIN   "${TOOLCHAIN_ROOT_PATH}")
+ set(CMAKE_CXX_COMPILER_EXTERNAL_TOOLCHAIN "${TOOLCHAIN_ROOT_PATH}")
+ set(CMAKE_ASM_COMPILER_EXTERNAL_TOOLCHAIN "${TOOLCHAIN_ROOT_PATH}")
+@@ -293,4 +351,11 @@
+ set(OHOS_RANLIB "${TOOLCHAIN_BIN_PATH}/llvm-ranlib${HOST_SYSTEM_EXE_SUFFIX}")
+ set(CMAKE_AR                "${OHOS_AR}" CACHE FILEPATH "Archiver")
+ set(CMAKE_RANLIB            "${OHOS_RANLIB}" CACHE FILEPATH "Ranlib")
+-set(UNIX TRUE CACHE BOOL FROCE)
++set(UNIX TRUE CACHE BOOL "Unix Env" FORCE)
++
++message(STATUS "CMAKE_SYSROOT: ${CMAKE_SYSROOT}")
++message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
++message(STATUS "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
++message(STATUS "CMAKE_SHARED_LINKER_FLAGS: ${CMAKE_SHARED_LINKER_FLAGS}")
++
++set(CMAKE_VERBOSE_MAKEFILE ON)

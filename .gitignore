@@ -24,6 +24,18 @@ opencv
 opencv-python
 grpc
 pytorch
+
+binutils
+gcc
+gmp
+libiconv
+m4
+mpc
+mpfr
+patchelf
+tmp
+tmps
+
 *.tar.gz
 *.tar.xz
 *.zip
@@ -31,4 +43,5 @@ pytorch
 *.dist
 *.env
 *.log
+*.old
 .vscode

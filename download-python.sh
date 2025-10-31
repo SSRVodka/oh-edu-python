@@ -3,26 +3,25 @@
 set -Eeuo pipefail
 
 CACHE_FILE=__hw_cache.tar.gz
-DIRS="zlib libffi bzip2 xz readline openssl sqlite ncurses gettext Python BPython OpenBLAS libaacplus x264 alsa-lib ffmpeg"
+DIRS="zlib libffi bzip2 xz readline openssl sqlite ncurses gettext Python BPython OpenBLAS libaacplus x264 alsa-lib ffmpeg libiconv"
 
 rm -rf $DIRS
-exit 0
 
 wget_source() {
-    wget -O tmp $1
+    wget -O tmps $1
     if [[ $1 == *.zip ]]; then
-        unzip tmp
+        unzip tmps
     elif [[ $1 == *.tar.gz ]]; then
-        tar -zxpvf tmp
+        tar -zxpvf tmps
     elif [[ $1 == *.bz2 ]]; then
-        tar -xpvf tmp
+        tar -xpvf tmps
     elif [[ $1 == *.tgz ]]; then
-        tar -xpvf tmp
+        tar -xpvf tmps
     else
         echo "Unsupported file format: $1"
         exit 1
     fi
-    rm tmp
+    rm tmps
 }
 
 if [ -f ${CACHE_FILE} ]; then
@@ -43,8 +42,8 @@ mv bzip2-1.0.8 bzip2
 wget_source https://github.com/tukaani-project/xz/archive/refs/tags/v5.8.1.zip
 mv xz-5.8.1 xz
 
-wget_source https://ftp.gnu.org/gnu/readline/readline-8.2.tar.gz
-mv readline-8.2 readline
+wget_source https://mirrors.tuna.tsinghua.edu.cn/gnu/readline/readline-8.3.tar.gz
+mv readline-8.3 readline
 
 wget_source https://github.com/openssl/openssl/archive/refs/tags/openssl-3.5.0.zip
 mv openssl-openssl-3.5.0 openssl
@@ -52,10 +51,10 @@ mv openssl-openssl-3.5.0 openssl
 wget_source https://www.sqlite.org/2025/sqlite-autoconf-3490100.tar.gz
 mv sqlite-autoconf-3490100 sqlite
 
-wget_source https://ftp.gnu.org/pub/gnu/ncurses/ncurses-6.5.tar.gz
+wget_source https://mirrors.tuna.tsinghua.edu.cn/gnu/ncurses/ncurses-6.5.tar.gz
 mv ncurses-6.5 ncurses
 
-wget_source https://ftp.gnu.org/pub/gnu/gettext/gettext-0.24.tar.gz
+wget_source https://mirrors.tuna.tsinghua.edu.cn/gnu/gettext/gettext-0.24.tar.gz
 mv gettext-0.24 gettext
 
 wget_source https://www.python.org/ftp/python/3.12.12/Python-3.12.12.tgz
@@ -77,6 +76,9 @@ mv alsa-lib-1.2.14 alsa-lib
 
 wget_source https://github.com/FFmpeg/FFmpeg/archive/refs/tags/n4.3.9.zip
 mv FFmpeg-n4.3.9 ffmpeg
+
+wget_source https://mirrors.tuna.tsinghua.edu.cn/gnu/libiconv/libiconv-1.17.tar.gz
+mv libiconv-1.17 libiconv
 
 tar -zcpvf $CACHE_FILE $DIRS
 
