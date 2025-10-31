@@ -25,13 +25,13 @@ BUILD_PYTHON_DIST=$(dirname $(readlink -f $0))/build-python.dist
 
 echo "Set Build-Python Destination: ${BUILD_PYTHON_DIST}"
 
-#pushd BPython
-#./configure \
-#	--prefix=${BUILD_PYTHON_DIST} \
-#	--enable-shared
-#make -j
-#make install
-#popd
+pushd BPython
+./configure \
+	--prefix=${BUILD_PYTHON_DIST} \
+	--enable-shared
+make -j
+make install
+popd
 
 ################################# Setup Envs #################################
 

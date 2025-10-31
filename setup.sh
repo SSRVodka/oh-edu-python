@@ -272,8 +272,9 @@ TEST_DIR=${CUR_DIR}/test-only
 # Set this for OHOS sdk installation
 OHOS_LIBDIR=lib/${OHOS_CPU}-linux-ohos
 
-# Note: Fortran compiler should be changed with ARCH
-# Use gnu here instead of ohos: code gen only
+# NOTE: We no longer need gfortran for OpenBLAS
+## Note: Fortran compiler should be changed with ARCH
+## Use gnu here instead of ohos: code gen only
 #FC=${OHOS_CPU}-linux-gnu-gfortran-11
 #mkdir -p ${TARGET_ROOT}/${OHOS_LIBDIR}
 #if [ ! -d ${CUR_DIR}/gfortran.libs.${OHOS_CPU} ]; then
