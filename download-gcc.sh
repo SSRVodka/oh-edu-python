@@ -2,28 +2,13 @@
 
 set -Eeuo pipefail
 
+. setup.sh
+
 CACHE_FILE=__hw_cache_gcc.tar.gz
 
 SRCS="gmp mpfr mpc gcc binutils m4 patchelf"
 
 rm -rf $SRCS
-
-wget_source() {
-    wget -O tmps $1
-    if [[ $1 == *.zip ]]; then
-        unzip tmps
-    elif [[ $1 == *.tar.gz ]]; then
-        tar -zxpvf tmps
-    elif [[ $1 == *.tgz ]]; then
-        tar -xpvf tmps
-    elif [[ $1 == *.tar.xz ]]; then
-	tar -Jxpvf tmps
-    else
-        echo "Unsupported file format: $1"
-        exit 1
-    fi
-    rm tmps
-}
 
 if [ -f "$CACHE_FILE" ]; then
 	

@@ -1,11 +1,11 @@
 [constants]
-py_ver = ''
-ohos_sdk = ''
-proj_root = ''
+py_ver = '3.12'
+ohos_sdk = '/home/xhw/Desktop/OH/oh-cross-toolchain/ohos-sdk/15'
+proj_root = '/home/xhw/Desktop/OH/oh-edu-python'
 toolchain = ohos_sdk / 'native/llvm/bin'
 sysroot = ohos_sdk / 'native/sysroot'
-host_cpu = ''
-host_arch = ''
+host_cpu = 'aarch64'
+host_arch = 'aarch64'
 dist_root = proj_root/'dist.' + host_arch
 hostpy_root = proj_root/'crossenv_' + host_arch + '/cross'
 common_flags = ['--sysroot=' + sysroot, '--target=' + host_cpu + '-linux-ohos']

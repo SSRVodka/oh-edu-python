@@ -2,27 +2,12 @@
 
 set -Eeuo pipefail
 
+. setup.sh
+
 CACHE_FILE=__hw_cache.tar.gz
-DIRS="zlib libffi bzip2 xz readline openssl sqlite ncurses gettext Python BPython OpenBLAS libaacplus x264 alsa-lib ffmpeg libiconv"
+DIRS="zlib libffi bzip2 xz readline openssl sqlite ncurses gettext Python BPython OpenBLAS libaacplus x264 alsa-lib ffmpeg libiconv util-linux"
 
 rm -rf $DIRS
-
-wget_source() {
-    wget -O tmps $1
-    if [[ $1 == *.zip ]]; then
-        unzip tmps
-    elif [[ $1 == *.tar.gz ]]; then
-        tar -zxpvf tmps
-    elif [[ $1 == *.bz2 ]]; then
-        tar -xpvf tmps
-    elif [[ $1 == *.tgz ]]; then
-        tar -xpvf tmps
-    else
-        echo "Unsupported file format: $1"
-        exit 1
-    fi
-    rm tmps
-}
 
 if [ -f ${CACHE_FILE} ]; then
 
@@ -79,6 +64,9 @@ mv FFmpeg-n4.3.9 ffmpeg
 
 wget_source https://mirrors.tuna.tsinghua.edu.cn/gnu/libiconv/libiconv-1.17.tar.gz
 mv libiconv-1.17 libiconv
+
+wget_source https://github.com/util-linux/util-linux/archive/refs/tags/v2.41.2.zip
+mv util-linux-2.41.2 util-linux
 
 tar -zcpvf $CACHE_FILE $DIRS
 

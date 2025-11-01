@@ -87,12 +87,22 @@ if [ -z "$_prefix" ]; then
 	exit 1
 fi
 sed -i -e "s|^prefix=.*|prefix=${_prefix}|g" \
-	-e "s|^\(libdir=\"\).*\(lib/.*\)$|\1${_prefix}\2|g" \
+	-e "s|^\(libdir=\"\).*\(/lib/.*\)$|\1${_prefix}\2|g" \
 	-e "s|echo \"\(.*\)/share/terminfo\"|echo \"${_prefix}/share/terminfo\"|g" \
 	${_prefix}/bin/ncursesw6-config
 EOF
 
-build_makeproj_with_deps "ncurses" "" "--without-progs --with-shared --with-cxx-shared --enable-pc-files"
+build_makeproj_with_deps "ncurses" "" "--without-progs --with-shared --with-cxx-shared --with-termlib --enable-pc-files"
+# link libname without 'w'
+info "symlinking alias for ncurses"
+pushd ${TARGET_ROOT}.ncurses/${OHOS_LIBDIR}
+for lib in form panel menu tinfo ncurses ncurses++ ; do
+	ln -sfv lib${lib}w.so lib${lib}.so
+	pushd pkgconfig
+	ln -sfv ${lib}w.pc ${lib}.pc
+	popd
+done
+popd
 PKG_CONFIG_LIBDIR=${_pre_ncurses_pkgconfig_libdir}
 
 # special headers for ncurses
@@ -107,14 +117,18 @@ CPPFLAGS="$CFLAGS"
 
 build_makeproj_with_deps "gettext" "" "--enable-shared"
 
+# OHOS doesn't support mq_* (kernel message queue), versionsort, strvercomp
+sed -i 's/versionsort/alphasort/g' util-linux/libmount/src/tab_parse.c
+build_makeproj_with_deps "util-linux" "ncurses readline" "--disable-static --disable-chfn-chsh --disable-login --disable-nologin --disable-su --disable-setpriv --disable-runuser --disable-pylibmount --disable-liblastlog2 --disable-lsmem --disable-chmem --disable-wall --disable-ipcs --disable-ipcmk --disable-ipcrm --disable-irqtop --disable-lsirq --disable-lsfd --disable-lsipc --disable-libsmartcols --disable-makeinstall-chown --without-python --without-systemd --without-systemdsystemunitdir" "./autogen.sh"
+
 ################################# Build Python And Patch #################################
 
 pushd Python
 export LD_LIBRARY_PATH=${BUILD_PYTHON_DIST}/lib:$LD_LIBRARY_PATH
 # patch configure: ohos triplet not supported
 sed -i '/MULTIARCH=\$($CC --print-multiarch 2>\/dev\/null)/a PLATFORM_TRIPLET=$MULTIARCH' configure
-# manually add deps
-_py_deps="zlib openssl libffi sqlite bzip2 xz ncurses readline gettext"
+# manually add deps (keep track with setup.sh)
+_py_deps=$PY_DEPS
 _py_cflags="$CFLAGS"
 _py_ldflags="$LDFLAGS"
 _py_pkgconfig_libdir="$PKG_CONFIG_LIBDIR"
@@ -123,8 +137,8 @@ for dep in $_py_deps; do
 	_py_ldflags="$_py_ldflags -L${TARGET_ROOT}.${dep}/${OHOS_LIBDIR}"
 	_py_pkgconfig_libdir="$_py_pkgconfig_libdir:${TARGET_ROOT}.${dep}/${OHOS_LIBDIR}/pkgconfig"
 done
-# add header path for fucking lzma, ncursesw, readline
-_py_cflags="$_py_cflags -I${TARGET_ROOT}.xz/include/lzma -I${TARGET_ROOT}.ncurses/include/ncursesw -I${TARGET_ROOT}.readline/include/readline"
+# add header path for fucking lzma, ncursesw, readline, uuid
+_py_cflags="$_py_cflags -I${TARGET_ROOT}.xz/include/lzma -I${TARGET_ROOT}.ncurses/include/ncursesw -I${TARGET_ROOT}.readline/include/readline -I${TARGET_ROOT}.util-linux/include/uuid"
 
 _py_libdir=${TARGET_ROOT}/${OHOS_LIBDIR}
 
@@ -149,7 +163,6 @@ _py_libdir=${TARGET_ROOT}/${OHOS_LIBDIR}
 	READELF="${READELF}" PROFDATA="${PROFDATA}" \
 	PKG_CONFIG_LIBDIR="${_py_pkgconfig_libdir}"
 make -j
-read -p "Check >>> "
 make install
 export LD_LIBRARY_PATH=$OLD_LD_LIBPATH
 popd

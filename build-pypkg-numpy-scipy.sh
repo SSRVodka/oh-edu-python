@@ -4,14 +4,26 @@
 
 . setup-pypkg-env.sh
 
+# more dependencies for numpy, scipy
+_np_deps="OpenBLAS"
+for _np_dep in $_np_deps; do
+	CFLAGS="-I${TARGET_ROOT}.${_np_dep}/include ${CFLAGS}"
+	LDFLAGS="-L${TARGET_ROOT}.${_np_dep}/${OHOS_LIBDIR} ${LDFLAGS}"
+	PKG_CONFIG_LIBDIR="${TARGET_ROOT}.${_np_dep}/${OHOS_LIBDIR}/pkgconfig:${PKG_CONFIG_LIBDIR}"
+done
+# update meson
+set_meson_list "meson-scripts/ohos-build.meson" "common_c_flags" "$CFLAGS"
+set_meson_list "meson-scripts/ohos-build.meson" "common_ld_flags" "$LDFLAGS"
+
+
 ################################## Build Dependencies For NumPy ##################################
 
 info "building dependencies for NumPy..."
 
 # MUST use cython for cross-python
-cd cython
+pushd cython
 pip install -v --no-binary :all: .
-cd ..
+popd
 
 # install pypi-build for cross-python
 pip install -v --no-binary :all: build
@@ -20,9 +32,9 @@ pip install -v --no-binary :all: build
 
 ################################## Build NumPy ##################################
 
-info "building NumPy"
+info "building NumPy..."
 
-cd numpy
+pushd numpy2
 rm -rf ./dist
 #VENDORED_MESON=${CUR_DIR}/numpy/vendored-meson/meson/meson.py
 #python ${VENDORED_MESON} setup --reconfigure --prefix=${CUR_DIR}/xdist51 --cross-file ../meson-scripts/ohos-build.meson xbuild-ohos
@@ -32,8 +44,10 @@ rm -rf ./dist
 #cd ..
 python -m build --wheel -Csetup-args="--cross-file=${CUR_DIR}/meson-scripts/ohos-build.meson"
 pip install -v ./dist/*.whl
-cd ..
+popd
 
+info "not building scipy for now! Reason: using GPL-licensed gfortran"
+exit 0
 
 ################################## Build Dependencies For SciPy ##################################
 
