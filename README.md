@@ -95,10 +95,3 @@ If you want to build third-party Python libraries, you need to download the repo
 
 This repository provides some examples of built third-party libraries (`numpy`, `scipy`), see Release.
 
-
-
-## Known Issues
-
-- ` libreadline.so` is compiled with the Clang toolchain, but still has the problem of not recognizing symbols. Suspect OpenHarmony build toolchain or musl libc system library itself: 
-
-    <img src="imgs/issue2.png" />

@@ -95,11 +95,3 @@ OpenHarmony (OH) 作为面向全场景、全连接时代的下一代开源操作
 如果你想要构建第三方 Python 库，则需要下载相关仓库，模仿 `build-pypkg-xxx.sh` 手动构建第三方库。
 
 本仓库提供了部分构建的第三方库样例（`numpy`、`scipy`），参见 Release。
-
-
-
-## 已知问题
-
-- `libreadline.so` 通过 Clang 工具链的编译，但是还是出现无法识别符号的问题。怀疑是 OpenHarmony 编译工具链或 musl libc 系统库自身问题：
-
-    <img src="imgs/issue2.png" />

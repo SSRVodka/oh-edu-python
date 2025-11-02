@@ -114,6 +114,8 @@ build_makeproj_with_deps "readline" "ncurses" "--enable-shared --with-curses"
 CFLAGS="$_pre_readline_cflags"
 CXXFLAGS="$CFLAGS"
 CPPFLAGS="$CFLAGS"
+# patch with libncursesw to avoid 'symbol not found' error
+patchelf --add-needed libncursesw.so ${TARGET_ROOT}.readline/${OHOS_LIBDIR}/libreadline.so
 
 build_makeproj_with_deps "gettext" "" "--enable-shared"
 
@@ -143,6 +145,7 @@ _py_cflags="$_py_cflags -I${TARGET_ROOT}.xz/include/lzma -I${TARGET_ROOT}.ncurse
 _py_libdir=${TARGET_ROOT}/${OHOS_LIBDIR}
 
 ./configure --libdir=${_py_libdir} \
+	--with-platlibdir=${OHOS_LIBDIR} \
 	--target=${OHOS_CPU}-linux-musl \
 	--host=${OHOS_CPU}-linux-musl \
 	--build=x86_64-pc-linux-gnu \
