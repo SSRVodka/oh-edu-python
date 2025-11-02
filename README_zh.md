@@ -1,10 +1,25 @@
 
 # 适用于 OpenHarmony EDU 平台的 Python3
 
-本仓库将 Python3 (目前 3.11.4) 以及部分依赖于 C/C++ 模块的第三方库移植到 OpenHarmony (EDU) 5.0.2。
+> [!NOTE]
+>
+> 不仅仅是 Python、不仅仅提供源码级别的迁移方案。
+>
+> 我们还分发已经编译好的二进制库，以及对应的包管理器，方便开发者直接将官方未整合的库安装到 SDK 或者您的 OHOS 上，简化开发流程。
+>
+> 详请参见：[OH Packager](https://github.com/SSRVodka/oh-packager)；
+
+本仓库仅提供从源码级别的成体系的迁移方案，您可以在此基础上很轻松的迁移其他需要的库。
+
+我们已经将下面的内容移植到 OpenHarmony (EDU) 5.0.2：
+
+- 系统级依赖库。详细内容参见列表： [VERSIONS](./VERSIONS)；
+- Python3 (目前支持 3.12.12 和 3.11.4)；
+- 部分依赖于 C/C++ 模块的第三方库移植到 OpenHarmony (EDU) 5.0.2。
 
 ## 进度
 
+- [x] 50+ 系统依赖库：如 openblas, binutils, zstd, curl, ...
 - [x] Python 解释器，及常见 native 库：libaacplus、x264、alsa-lib、ffmpeg、bzip2、gettext、libffi、ncurses、OpenBLAS、openssl、readline、sqlite3、xz、zlib；
 - [x] Python 第三方库：numpy、scipy、opencv、onnxruntime；
 - [ ] ……

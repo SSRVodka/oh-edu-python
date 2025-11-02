@@ -2,10 +2,25 @@
 
 [中文文档](./README_zh.md)
 
-This repository ports Python3 (currently 3.11.4) and some third-party libraries that depend on C/C++ modules to OpenHarmony Edu 5.0.2. 
+> [!NOTE]
+>
+> Not just Python, not just source-level migration solutions.
+>
+> We also distribute pre-compiled binary libraries (system-wide) along with corresponding package managers, enabling developers to directly install libraries not integrated into the official SDK or your OHOS system, thereby simplifying the development process.
+>
+> See: [OH Packager](https://github.com/SSRVodka/oh-packager)；
+
+This repository provides only a comprehensive migration solution at the source code level. You can easily migrate other required libraries based on this foundation.
+
+We have already ported:
+
+- 50+ system-wide libraries. See: [VERSIONS](./VERSIONS)
+- Python3 (currently support 3.12.12 AND 3.11.4)
+- some third-party libraries that depend on C/C++ modules to OpenHarmony Edu 5.0.2. 
 
 ## Progress
 
+- [x] 50+ system libraries (e.g. openblas, binutils, zstd, curl, ...)
 - [x] Python interpreter, and common native libraries: libaacplus, x264, alsa-lib, ffmpeg, bzip2, gettext, libffi, ncurses, OpenBLAS, openssl, readline, sqlite3, xz, zlib;
 - [x] Python third-party libraries: numpy, scipy, opencv, onnxruntime;
 - [ ] ......
