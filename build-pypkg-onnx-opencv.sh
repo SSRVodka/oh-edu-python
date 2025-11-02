@@ -34,6 +34,7 @@ PATH=${OHOS_SDK}/native/build-tools/cmake/bin:$PATH ./build.sh \
 	--build_wheel \
 	--parallel \
 	--build_dir ${BUILD_DIRNAME} \
+	--allow_running_as_root \
 	--cmake_extra_defines \
    CMAKE_INSTALL_PREFIX=${OUTPUT_DIR} \
    CMAKE_INSTALL_LIBDIR=${OHOS_LIBDIR} \
@@ -58,7 +59,7 @@ PATH=${OHOS_SDK}/native/build-tools/cmake/bin:$PATH ./build.sh \
    onnxruntime_ENABLE_CPUINFO=OFF \
    onnxruntime_BUILD_UNIT_TESTS=OFF
 
-cmake --install ${BUILD_DIRNAME}/${ONNXRUNTIME_BUILD_TYPE}
+${CMAKE_BIN} --install ${BUILD_DIRNAME}/${ONNXRUNTIME_BUILD_TYPE}
 popd
 
 patch_libdir_origin "onnxruntime" "" ${OUTPUT_DIR}

@@ -4,6 +4,8 @@
 
 _pre_aac_cflags="${CFLAGS}"
 CFLAGS="${CFLAGS} -std=gnu89"
+# patch https to avoid 301
+sed -i 's|http://\(.\+\)|https://\1|' libaacplus/src/Makefile.am
 # WARN: cannot use -j option
 build_makeproj_with_deps "libaacplus" "" "--enable-static" "" "ac_cv_file__bin_bash=no" "1"
 CFLAGS="${_pre_aac_cflags}"

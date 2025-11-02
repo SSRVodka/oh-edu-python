@@ -119,7 +119,7 @@ build_makeproj_with_deps "gettext" "" "--enable-shared"
 
 # OHOS doesn't support mq_* (kernel message queue), versionsort, strvercomp
 sed -i 's/versionsort/alphasort/g' util-linux/libmount/src/tab_parse.c
-build_makeproj_with_deps "util-linux" "ncurses readline" "--disable-static --disable-chfn-chsh --disable-login --disable-nologin --disable-su --disable-setpriv --disable-runuser --disable-pylibmount --disable-liblastlog2 --disable-lsmem --disable-chmem --disable-wall --disable-ipcs --disable-ipcmk --disable-ipcrm --disable-irqtop --disable-lsirq --disable-lsfd --disable-lsipc --disable-libsmartcols --disable-makeinstall-chown --without-python --without-systemd --without-systemdsystemunitdir" "./autogen.sh"
+build_makeproj_with_deps "util-linux" "ncurses readline" "--disable-static --disable-chfn-chsh --disable-login --disable-nologin --disable-su --disable-setpriv --disable-runuser --disable-pylibmount --disable-liblastlog2 --disable-lsmem --disable-chmem --disable-wall --disable-ipcs --disable-ipcmk --disable-ipcrm --disable-irqtop --disable-lsirq --disable-lsfd --disable-lsipc --disable-libsmartcols --disable-hwclock-cmos --disable-makeinstall-chown --without-python --without-systemd --without-systemdsystemunitdir" "./autogen.sh"
 
 ################################# Build Python And Patch #################################
 

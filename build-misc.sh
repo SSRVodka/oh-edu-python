@@ -2,6 +2,14 @@
 
 . setup.sh
 
+# make nasm configure happy
+if [ ! -f nasm/nasm.1 ]; then
+	touch nasm/nasm.1 nasm/ndisasm.1
+fi
+build_makeproj_with_deps "nasm" "" "" "./autogen.sh"
+
+exit 0
+
 INSTALL_USER=root INSTALL_GROUP=root build_makeproj_with_deps "attr"
 build_makeproj_with_deps "acl" "attr"
 build_cmakeproj_with_deps "assimp" "" "-DBUILD_SHARED_LIBS=ON"
@@ -94,7 +102,11 @@ sed -i "s/^add_compile_options(-std=c++11)/set(CMAKE_CXX_STANDARD 11)\nset(CMAKE
 #build_cmakeproj_with_deps "YDLidar-SDK" "Python" "-DBUILD_SHARED_LIBS=ON -DPYTHON_EXECUTABLE=${TARGET_ROOT}.Python/bin/python3 -DPYTHON_LIBRARY=${TARGET_ROOT}.Python/${OHOS_LIBDIR}/libpython3.so"
 build_cmakeproj_with_deps "YDLidar-SDK" "" "-DBUILD_SHARED_LIBS=ON" "" "-Wno-format-security"
 
+# OH doesn't support pthread_setaffinity_np
+sed -i '/__OPENHARMONY__/! s/\(#if defined(__x86_64__) \&\& defined(__linux__) \&\& !defined(__ANDROID__)\)$/\1 \&\& !defined(__OPENHARMONY__)/g' llama.cpp/common/common.cpp
 build_cmakeproj_with_deps "llama.cpp" "openssl curl OpenBLAS" "-DBUILD_SHARED_LIBS=ON -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=OpenBLAS"
+
+build_makeproj_with_deps "rsync" "openssl zstd" "--disable-md2man --disable-xxhash --disable-lz4" "" "" "1"
 
 #build_cmakeproj_with_deps "flann" "" "-DBUILD_SHARED_LIBS=ON"
 #build_cmakeproj_with_deps "pcl" "eigen" "-DBUILD_SHARED_LIBS=ON"

@@ -25,14 +25,14 @@ mv mpfr-4.2.2 mpfr
 wget_source https://mirrors.tuna.tsinghua.edu.cn/gnu/mpc/mpc-1.3.1.tar.gz
 mv mpc-1.3.1 mpc
 
-wget_source https://mirrors.tuna.tsinghua.edu.cn/gnu/gcc/gcc-15.2.0/gcc-15.2.0.tar.xz
-mv gcc-15.2.0 gcc
+#wget_source https://mirrors.tuna.tsinghua.edu.cn/gnu/gcc/gcc-15.2.0/gcc-15.2.0.tar.xz
+#mv gcc-15.2.0 gcc
 
 wget_source https://mirrors.tuna.tsinghua.edu.cn/gnu/binutils/binutils-2.44.tar.xz
 mv binutils-2.44 binutils
 
-wget_source https://mirrors.tuna.tsinghua.edu.cn/gnu/m4/m4-1.4.19.tar.xz
-mv m4-1.4.19 m4
+#wget_source https://mirrors.tuna.tsinghua.edu.cn/gnu/m4/m4-1.4.19.tar.xz
+#mv m4-1.4.19 m4
 
 wget_source https://github.com/NixOS/patchelf/archive/refs/tags/0.18.0.zip
 mv patchelf-0.18.0 patchelf

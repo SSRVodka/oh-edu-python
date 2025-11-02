@@ -173,7 +173,8 @@ build_cmakeproj_with_deps() {
 	local _my_extra_cppflags=${6:-}
 	local _my_extra_ldflags=${7:-}
 	local parallism=${8:-}
-	local _my_cmake_builddir=${9:-ohos-build}
+	local _my_extra_cmake_findroot=${9:-}
+	local _my_cmake_builddir=${10:-ohos-build}
 
 
 	pushd $target_dir
@@ -182,7 +183,7 @@ build_cmakeproj_with_deps() {
 	local _extra_cflags=""
 	local _extra_ldflags=""
 	local _extra_cmakeprefix=""
-	local _extra_cmakefindroot=""
+	local _extra_cmakefindroot="$_my_extra_cmake_findroot"
 	local OLD_PKG_CONFIG_LIBDIR="$PKG_CONFIG_LIBDIR"
 	for dep in $deps; do
 		_extra_cflags="-I${TARGET_ROOT}.${dep}/include ${_extra_cflags}"
@@ -203,6 +204,8 @@ build_cmakeproj_with_deps() {
 
 	info "common c flags appended: $_extra_cflags $_my_extra_cflags"
 	info "common link flags appended: $_extra_ldflags $_my_extra_ldflags"
+	info "cmake prefix appended: $_extra_ldflags $_my_extra_ldflags"
+	info "pkgconfig libdir: $PKG_CONFIG_LIBDIR"
 
 	# Use SSRVODKA_APPEND_CMAKE_PREFIX_PATH with semicolons
 	${CMAKE_BIN} \
@@ -221,7 +224,7 @@ build_cmakeproj_with_deps() {
 		-DCMAKE_CROSSCOMPILING=ON \
 		-B ${_my_cmake_builddir}
 
-	read -p "Check >>> "
+	#read -p "Check >>> "
 	${CMAKE_BIN} --build ${_my_cmake_builddir} -j${parallism}
 	${CMAKE_BIN} --install ${_my_cmake_builddir}
 

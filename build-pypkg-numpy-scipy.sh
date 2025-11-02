@@ -47,6 +47,7 @@ pip install -v ./dist/*.whl
 popd
 
 info "not building scipy for now! Reason: using GPL-licensed gfortran"
+cp numpy2/dist/* ${PYPKG_OUTPUT_WHEEL_DIR}
 exit 0
 
 ################################## Build Dependencies For SciPy ##################################
