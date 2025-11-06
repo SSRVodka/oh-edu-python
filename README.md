@@ -61,37 +61,36 @@ Using Ubuntu hosting environment as an example. The OpenHarmony (Edu) SDK needs 
 
 - Set the environment variable `OHOS_SDK` (it is recommended to write `.bashrc/.zshrc`) to the root directory of your OpenHarmony (Edu) SDK. Note that it needs to contain the API version number, e.g. `[...] /14`; 
 
-- Install the necessary build tools: 
+- Install required build tools: All dependencies are listed in the [DEP](./DEPS) file. You can run `source ./DEPS` in your build environment for one-click installation, or open the file to review specific requirements;
 
-  ```shell
-  sudo apt install \
-  	git \
-  	wget \
-  	unzip \
-  	build-essential \
-  	autoconf \
-  	autopoint \
-  	libtool \
-  	texinfo \
-  	po4a
-  ```
+- Download source code before compilation. Since the total size of all libraries and packages exceeds tens of gigabytes, downloading everything on a personal laptop is impractical. Download scripts (all `download-*.sh`) are provided for each component, allowing you to download only what you need. For example: If you only need to build the Python interpreter and its dependencies, simply run `./download-python.sh`.
 
-- Execute `./build-python.sh -d` to start building the Python interpreter;
+- Compile using the downloaded libraries:
 
-- Execute `./build-pypkg-xxx -d` to build the specified Python package. Note:
-  - In the case of OpenCV you also need to build ffmpeg: `./build-ffmpeg.sh`, and you need to run `./build-pypkg-numpy-scipy.sh` to compile and install numpy to crossenv;
+  - For example, to build the Python interpreter and its dependencies, simply run `./build-python.sh`;
 
-  - In the case of SciPy, it is recommended to compile OpenBLAS to speed things up: `./build-openblas.sh`;
+  - To build Python packages, you must first complete the Python interpreter build, then download the corresponding source code before compiling. Relevant script: `./build-pypkg-xxx -d`. Note:
 
-  - If onnxruntime is required, since it is currently only supported up to 1.18.2 and therefore requires numpy version < 2, you may need to modify the build script to compile a lower version of the numpy package.
-  
-- The `-d` parameter indicates that downloading the source code of the various dependent libraries is required only for the first download. If you want to handle the download manually, you can skip the `-d` and run `download-*.sh` first;
+	- For OpenCV, you must also compile FFmpeg and first run `./build-pypkg-numpy-scipy.sh` to compile and install numpy into crossenv;
 
-- The native library output is located in `dist.<arch>`, and the python wheel output is located in `dist.wheel` (some of them are actually located in the `xxx(package name)/dist` directory);
+    - For SciPy, compiling OpenBLAS for acceleration is recommended: `./build-openblas.sh`;
+
+	- If onnxruntime is required, since it currently only supports up to 1.18.2, numpy version < 2 is needed. You may need to modify the build script to compile a lower numpy version.
+
+- (Deprecated) The `-d` parameter downloads source code for various dependencies and is only needed on the first run. If you wish to handle downloads manually, omit `-d` and run `download-*.sh` first;
+
+- Native library outputs reside in `dist.<arch>.<package_name>`, while Python wheel outputs are in `dist.wheel` (some may actually be located in `xxx(package_name)/dist` directories);
 
 
+## How to Add Required Libraries Yourself?
 
-If you want to build third-party Python libraries, you need to download the repositories and build them manually by mimicking `build-pypkg-xxx.sh`.
+- If you wish to add a third-party system library to the build process, simply add one line of code, following the format used in `build-misc.sh`.
 
-This repository provides some examples of built third-party libraries (`numpy`, `scipy`), see Release.
+- If you want to build a third-party Python library, you need to download the relevant repository and manually build the third-party library by following the format used in `build-pypkg-xxx.sh`.
+
+- For binary distribution of system dependency libraries, refer to [OH Packager](https://github.com/SSRVodka/oh-packager).
+
+- This repository provides sample builds for some third-party libraries (`numpy`, `scipy`). See the Releases section.
+
+- Feel free to submit a PR with your additions.
 

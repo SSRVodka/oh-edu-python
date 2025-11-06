@@ -62,36 +62,35 @@ OpenHarmony (OH) 作为面向全场景、全连接时代的下一代开源操作
 
 - 设置环境变量 `OHOS_SDK`（建议写入 `.bashrc/.zshrc`）为你的 OpenHarmony SDK 的根目录。请注意，它需要包含 API 版本号，例如 `[...]/14`；
 
-- 安装必要构建工具：
+- 安装必要构建工具：所有依赖位于 [DEP](./DEPS) 文件中，您可以在构建环境中执行 `source ./DEPS` 一键安装，或者打开文件查看需要的部分；
 
-  ```shell
-  sudo apt install \
-  	git \
-  	wget \
-  	unzip \
-  	build-essential \
-  	autoconf \
-  	autopoint \
-  	libtool \
-  	texinfo \
-  	po4a
-  ```
+- 编译前需要下载源码。因为所有库和包的总大小有数十 GB，不适宜个人用笔记本全部下载，因此提供了每个部分的下载脚本（所有的 `download-*.sh`），您可以按需下载。例如：如果您只需要构建 Python 解释器及其依赖库，则只要 `./download-python.sh` 即可。
 
-- 执行 `./build-python.sh -d` 开始编译 Python 解释器；
+- 编译时执行已下载对于的库，
 
-- 再执行 `./build-pypkg-xxx -d` 来编译指定的 Python 包。注意：
+  - 例如构建 Python 解释器及其依赖库，只要 `./build-python.sh`；
 
-  - 如果是 OpenCV 则还需要编译 ffmpeg：`./build-ffmpeg.sh`，并且需要事先执行 `./build-pypkg-numpy-scipy.sh` 编译并安装 numpy 到 crossenv；
+  - 如果需要构建 Python 包，则需要在构建完成 Python 解释器的基础上，下载对于的源码，然后才能开始执行编译。相关脚本： `./build-pypkg-xxx -d`。注意：
 
-  - 如果是 SciPy 则建议编译 OpenBLAS 加速：`./build-openblas.sh`；
+	- 如果是 OpenCV 则还需要编译 ffmpeg，并且需要事先执行 `./build-pypkg-numpy-scipy.sh` 编译并安装 numpy 到 crossenv；
 
-  - 如果需要 onnxruntime，因为目前仅支持到 1.18.2，因此需要 numpy 版本 < 2，您可能需要修改编译脚本编译低版本的 numpy 包。
+	- 如果是 SciPy 则建议编译 OpenBLAS 加速：`./build-openblas.sh`；
 
-- `-d` 参数表示下载各种依赖库的源码，只有第一次下载需要。如果您想要手动处理下载，可以不添加 `-d`，先执行 `download-*.sh`；
+	- 如果需要 onnxruntime，因为目前仅支持到 1.18.2，因此需要 numpy 版本 < 2，您可能需要修改编译脚本编译低版本的 numpy 包。
 
-- native library 产物位于 `dist.<arch>`，python wheel 产物位于 `dist.wheel`（有些实际上位于 `xxx(包名)/dist` 目录）；
+- （已弃用）`-d` 参数表示下载各种依赖库的源码，只有第一次下载需要。如果您想要手动处理下载，可以不添加 `-d`，先执行 `download-*.sh`；
+
+- native library 产物位于 `dist.<arch>.<package_name>`，python wheel 产物位于 `dist.wheel`（有些实际上位于 `xxx(包名)/dist` 目录）；
 
 
-如果你想要构建第三方 Python 库，则需要下载相关仓库，模仿 `build-pypkg-xxx.sh` 手动构建第三方库。
+## 如何自助新增需要的库？
 
-本仓库提供了部分构建的第三方库样例（`numpy`、`scipy`），参见 Release。
+- 如果你想新增构建第三方系统库，模仿 `build-misc.sh` 中的内容，一般加一行代码即可。
+
+- 如果你想要构建第三方 Python 库，则需要下载相关仓库，模仿 `build-pypkg-xxx.sh` 手动构建第三方库。
+
+- 关于系统依赖库的二进制分发，请参见 [OH Packager](https://github.com/SSRVodka/oh-packager)。
+
+- 本仓库提供了部分构建的第三方库样例（`numpy`、`scipy`），参见 Release。
+
+- 欢迎将您新增的内容提出 PR。
