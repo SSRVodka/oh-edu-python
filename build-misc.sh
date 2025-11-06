@@ -8,8 +8,6 @@ if [ ! -f nasm/nasm.1 ]; then
 fi
 build_makeproj_with_deps "nasm" "" "" "./autogen.sh"
 
-exit 0
-
 INSTALL_USER=root INSTALL_GROUP=root build_makeproj_with_deps "attr"
 build_makeproj_with_deps "acl" "attr"
 build_cmakeproj_with_deps "assimp" "" "-DBUILD_SHARED_LIBS=ON"

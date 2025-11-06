@@ -62,7 +62,7 @@ OpenHarmony (OH) 作为面向全场景、全连接时代的下一代开源操作
 
 - 设置环境变量 `OHOS_SDK`（建议写入 `.bashrc/.zshrc`）为你的 OpenHarmony SDK 的根目录。请注意，它需要包含 API 版本号，例如 `[...]/14`；
 
-- 安装必要构建工具：所有依赖位于 [DEP](./DEPS) 文件中，您可以在构建环境中执行 `source ./DEPS` 一键安装，或者打开文件查看需要的部分；
+- 安装必要构建工具：所有依赖位于 [DEPS](./DEPS) 文件中，您可以在构建环境中执行 `source ./DEPS` 一键安装，或者打开文件查看需要的部分；
 
 - 编译前需要下载源码。因为所有库和包的总大小有数十 GB，不适宜个人用笔记本全部下载，因此提供了每个部分的下载脚本（所有的 `download-*.sh`），您可以按需下载。例如：如果您只需要构建 Python 解释器及其依赖库，则只要 `./download-python.sh` 即可。
 
@@ -70,7 +70,7 @@ OpenHarmony (OH) 作为面向全场景、全连接时代的下一代开源操作
 
   - 例如构建 Python 解释器及其依赖库，只要 `./build-python.sh`；
 
-  - 如果需要构建 Python 包，则需要在构建完成 Python 解释器的基础上，下载对于的源码，然后才能开始执行编译。相关脚本： `./build-pypkg-xxx -d`。注意：
+  - 如果需要构建 Python 包，则需要在构建完成 Python 解释器的基础上，下载对于的源码，然后才能开始执行编译。相关脚本： `./build-pypkg-xxx.sh`。注意：
 
 	- 如果是 OpenCV 则还需要编译 ffmpeg，并且需要事先执行 `./build-pypkg-numpy-scipy.sh` 编译并安装 numpy 到 crossenv；
 

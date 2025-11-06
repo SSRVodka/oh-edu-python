@@ -61,7 +61,7 @@ Using Ubuntu hosting environment as an example. The OpenHarmony (Edu) SDK needs 
 
 - Set the environment variable `OHOS_SDK` (it is recommended to write `.bashrc/.zshrc`) to the root directory of your OpenHarmony (Edu) SDK. Note that it needs to contain the API version number, e.g. `[...] /14`; 
 
-- Install required build tools: All dependencies are listed in the [DEP](./DEPS) file. You can run `source ./DEPS` in your build environment for one-click installation, or open the file to review specific requirements;
+- Install required build tools: All dependencies are listed in the [DEPS](./DEPS) file. You can run `source ./DEPS` in your build environment for one-click installation, or open the file to review specific requirements;
 
 - Download source code before compilation. Since the total size of all libraries and packages exceeds tens of gigabytes, downloading everything on a personal laptop is impractical. Download scripts (all `download-*.sh`) are provided for each component, allowing you to download only what you need. For example: If you only need to build the Python interpreter and its dependencies, simply run `./download-python.sh`.
 
@@ -69,7 +69,7 @@ Using Ubuntu hosting environment as an example. The OpenHarmony (Edu) SDK needs 
 
   - For example, to build the Python interpreter and its dependencies, simply run `./build-python.sh`;
 
-  - To build Python packages, you must first complete the Python interpreter build, then download the corresponding source code before compiling. Relevant script: `./build-pypkg-xxx -d`. Note:
+  - To build Python packages, you must first complete the Python interpreter build, then download the corresponding source code before compiling. Relevant script: `./build-pypkg-xxx.sh`. Note:
 
 	- For OpenCV, you must also compile FFmpeg and first run `./build-pypkg-numpy-scipy.sh` to compile and install numpy into crossenv;
 
