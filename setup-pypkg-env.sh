@@ -28,7 +28,6 @@ _PYPKG_ENV_BACKUP_PKG_CONFIG_LIBDIR=${PKG_CONFIG_LIBDIR}
 export LD_LIBRARY_PATH=${BUILD_PYTHON_DIST}/lib:$LD_LIBRARY_PATH
 
 
-# NOTE: You also need to change download-pypkgs.sh if you change this
 # Numpy version >= 2.0
 NUMPY_GT_V2=1
 if [ $NUMPY_GT_V2 -eq 0 ]; then

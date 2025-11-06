@@ -70,7 +70,7 @@ if [ ! -f ${TARGET_ROOT}.onnxruntime ]; then
 fi
 
 ################################## Build opencv & opencv pkg ##################################
-
+# TODO: move cv2 dir to platlibdir
 #OUTPUT_DIR=${PYPKG_NATIVE_OUTPUT_DIR}.opencv
 
 # make opencv's cmake happy
@@ -113,11 +113,45 @@ build_cmakeproj_with_deps "opencv" "ffmpeg OpenBLAS" "\
 #patchelf --add-needed libpython${PY_VERSION}.so ${OUTPUT_DIR}/lib/python${PY_VERSION}/site-packages/cv2/python-${PY_VERSION}/cv2.cpython-${PY_VERSION_CODE}-${ARCH}-linux-ohos.so
 patchelf --add-needed libpython${PY_VERSION}.so ${TARGET_ROOT}.opencv/lib/python${PY_VERSION}/site-packages/cv2/python-${PY_VERSION}/cv2.cpython-${PY_VERSION_CODE}-${OHOS_CPU}-linux-ohos.so
 
+# TODO: fix wheel build error
 #pip install scikit-build
 ##pip wheel . --verbose
-#python setup.py bdist_wheel
+## build flags for skbuild
+#_cv_deps="ffmpeg OpenBLAS"
+#for _cv_dep in $_cv_deps; do
+#	CFLAGS="-I${TARGET_ROOT}.${_cv_dep}/include $CFLAGS"
+#	LDFLAGS="-L${TARGET_ROOT}.${_cv_dep}/${OHOS_LIBDIR} $LDFLAGS"
+#	PKG_CONFIG_LIBDIR="${TARGET_ROOT}.${_cv_dep}/${OHOS_LIBDIR}/pkgconfig:${PKG_CONFIG_LIBDIR}"
+#done
+#CXXFLAGS="$CFLAGS"
+## patch setup.py
+#_cv_py_exe="${HOST_PYTHON}"
+#_cv_py_numpy_include="${NUMPY_LIBROOT}/include"
+#_cv_py_common_include=${HOST_PYTHON_DIST}/include
+#_cv_py_include="${HOST_PYTHON_DIST}/include/python${PY_VERSION}"
+#_cv_py_lib="${HOST_PYTHON_DIST}/${OHOS_LIBDIR}/libpython${PY_VERSION}.so"
+#_cv_cmake_shared=ON
+#sed -i -e "s|\(python_version = \).*|\1\"${PY_VERSION}\"|" \
+#	-e "s|\(python_lib_path = \).*|\1\"${_cv_py_lib}\"|" \
+#	-e "s|\(python_include_dir = \).*\(.replace(\)|\1\"${_cv_py_include}\"\2|" \
+#	-e "s|\(\"-DPYTHON3_EXECUTABLE=\).*|\1${_cv_py_exe}\",|" \
+#	-e "s|\(\"-DPYTHON_DEFAULT_EXECUTABLE=\).*|\1\",|" \
+#	-e "s|\(\"-DPYTHON3_INCLUDE_DIR=\).*|\1\",\"-DPYTHON3_INCLUDE_PATHS=${_cv_py_include}\",|" \
+#	-e "s|\(\"-DPYTHON3_LIBRARY=\).*|\1\",\"-DPYTHON3_LIBRARIES=${_cv_py_lib}\",|" \
+#	-e "s|\(\"-DBUILD_SHARED_LIBS=\).*|\1${_cv_cmake_shared}\",\"-DCMAKE_FIND_ROOT_PATH=${HOST_PYTHON_DIST}\",\"-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_CONFIG}\",\"-DPYTHON3_NUMPY_INCLUDE_DIRS=${_cv_py_numpy_include}\",\"-DCMAKE_CROSSCOMPILING=ON\",\"-DCMAKE_VERBOSE_MAKEFILE=ON\",\"-DCMAKE_C_FLAGS=${CFLAGS}\",\"-DCMAKE_CXX_FLAGS=${CXXFLAGS}\",\"-DCMAKE_SHARED_LINKER_FLAGS=${LDFLAGS}\",|" \
+#	-e "\|CMAKE_ARGS|! s|\(\"-DPYTHON3_LIMITED_API=\).*|\1OFF\",|" \
+#	setup.py
+#	#-e "s|\(\"-DPYTHON3_EXECUTABLE=\).*|\1${_cv_py_exe}\",|" \
+#	#-e "s|\(\"-DPYTHON_DEFAULT_EXECUTABLE=\).*|\1${_cv_py_exe}\",|" \
+#	#-e "s|\(\"-DPYTHON3_INCLUDE_DIR=\).*|\1${_cv_py_include}\",\"-DPYTHON3_INCLUDE_PATHS=${_cv_py_include}\",\"-DPYTHON_INCLUDE_DIRS=${_cv_py_common_include}\",|" \
+#	#-e "s|\(\"-DPYTHON3_LIBRARY=\).*|\1${_cv_py_lib}\",\"-DPYTHON3_LIBRARIES=${_cv_py_lib}\",|" \
+#
+#PATH="${OHOS_SDK}/native/build-tools/cmake/bin:$PATH" pip install --no-binary :all: --no-build-isolation .
+##PATH="${OHOS_SDK}/native/build-tools/cmake/bin:$PATH" python setup.py bdist_wheel
+##PATH="${OHOS_SDK}/native/build-tools/cmake/bin:$PATH" pip wheel --verbose --no-build-isolation .
 
 popd
+
 
 ################################## Retrieve Python Wheels ##################################
 
@@ -129,7 +163,7 @@ cp -r ${TARGET_ROOT}.opencv/lib/python${PY_VERSION}/site-packages/cv2 .
 ./RECORD.GEN.sh cv2 ${_PREP_WHEEL_INFO} > RECORD
 mv RECORD ${_PREP_WHEEL_INFO}
 zip -r ${_WHEEL_ZIP_NAME} ${_PREP_WHEEL_INFO} cv2
-rm -rf cv2 ${_PREP_WHEEL_INFO}
+rm -rf cv2 ${_PREP_WHEEL_INFO}/RECORD
 mv ${_WHEEL_ZIP_NAME} ${OUTPUT_WHEEL_DIR}/${_PKGNAME}-cp${PY_VERSION_CODE}-cp${PY_VERSION_CODE}-linux_${OHOS_CPU}.whl
 
 cp onnxruntime/${BUILD_DIRNAME}/${ONNXRUNTIME_BUILD_TYPE}/dist/* ${OUTPUT_WHEEL_DIR}

@@ -1,4 +1,1 @@
-ohos-build.meson
-scipy-build.meson
-scipy-build.numpy2.meson
-
+*.meson

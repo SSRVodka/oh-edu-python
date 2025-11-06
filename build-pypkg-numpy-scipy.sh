@@ -34,7 +34,12 @@ pip install -v --no-binary :all: build
 
 info "building NumPy..."
 
-pushd numpy2
+_NUMPY_DIR=numpy2
+if [ $NUMPY_GT_V2 -eq 0 ]; then
+	_NUMPY_DIR=numpy
+fi
+
+pushd $_NUMPY_DIR
 rm -rf ./dist
 #VENDORED_MESON=${CUR_DIR}/numpy/vendored-meson/meson/meson.py
 #python ${VENDORED_MESON} setup --reconfigure --prefix=${CUR_DIR}/xdist51 --cross-file ../meson-scripts/ohos-build.meson xbuild-ohos
@@ -43,11 +48,11 @@ rm -rf ./dist
 #python ${VENDORED_MESON} install
 #cd ..
 python -m build --wheel -Csetup-args="--cross-file=${CUR_DIR}/meson-scripts/ohos-build.meson"
-pip install -v ./dist/*.whl
+pip install -v ./dist/*-cp${PY_VERSION_CODE}-cp${PY_VERSION_CODE}-linux_${OHOS_CPU}.whl
 popd
 
 info "not building scipy for now! Reason: using GPL-licensed gfortran"
-cp numpy2/dist/* ${PYPKG_OUTPUT_WHEEL_DIR}
+cp $_NUMPY_DIR/dist/* ${PYPKG_OUTPUT_WHEEL_DIR}
 exit 0
 
 ################################## Build Dependencies For SciPy ##################################
@@ -87,7 +92,7 @@ fi
 pip install -v ./dist/*.whl
 cd ..
 
-cp numpy/dist/* ${PYPKG_OUTPUT_WHEEL_DIR}
+cp $_NUMPY_DIR/dist/* ${PYPKG_OUTPUT_WHEEL_DIR}
 cp scipy/dist/* ${PYPKG_OUTPUT_WHEEL_DIR}
 
 
