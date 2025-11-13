@@ -71,3 +71,4 @@ ogre		ogre		14.4.1		mesa>=25.0,xorg,freetype>2.0
 flann		flann		1.9.2		lz4>1.0
 pcl		pcl		1.15.1		mesa>=25.0,boost>=1.80,eigen3,libpng,qhull>8.0,flann>1.0
 bullet3		bullet3		3.25		glu>=9.0,mesa>=25.0,xorg,python3>3.6
+qt5		qt5		5.15.12

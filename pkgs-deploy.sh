@@ -36,7 +36,11 @@ while IFS= read -r line; do
     echo "deps=$deps"
     echo "-------------"
 
-    oh-pkgtool --api ${OHOS_SDK_API_VERSION} -a ${OHOS_CPU} -n $name -i ${TARGET_ROOT}.${dir} -v $version -o $DEPLOY_DIR --depends "$deps"
+    arch_lib_isolation=""
+    if [ "$name" == "qt5" ]; then
+        arch_lib_isolation="--no-archlib-isolation"
+    fi
+    oh-pkgtool --api ${OHOS_SDK_API_VERSION} -a ${OHOS_CPU} -n $name -i ${TARGET_ROOT}.${dir} -v $version -o $DEPLOY_DIR --depends "$deps" $arch_lib_isolation
 
 done < "$VERSIONS_INFO"
 
