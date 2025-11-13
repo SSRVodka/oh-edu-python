@@ -7,7 +7,7 @@ set -Eeuo pipefail
 
 CACHE_FILE=__hw_cache_misc.tar.gz
 
-SRCS="acl attr assimp fmt yaml-cpp libpsl curl boost eigen qhull libccd SuiteSparse gflags glog ceres-solver zstd zeromq libexpat libpng freetype g2o geographiclib tinyxml2 oneTBB pcre2 swig rsync nasm YDLidar-SDK llama.cpp flann pcl libdrm"
+SRCS="acl attr assimp fmt yaml-cpp libpsl curl boost eigen qhull libccd SuiteSparse gflags glog ceres-solver zstd zeromq libexpat libpng freetype g2o geographiclib tinyxml2 icu libxml2 oneTBB pcre2 swig rsync nasm YDLidar-SDK llama.cpp lz4"
 
 rm -rf $SRCS
 
@@ -86,6 +86,12 @@ mv geographiclib-2.6 geographiclib
 wget_source https://github.com/leethomason/tinyxml2/archive/refs/tags/11.0.0.zip
 mv tinyxml2-11.0.0 tinyxml2
 
+wget_source https://github.com/unicode-org/icu/releases/download/release-78.1/icu4c-78.1-sources.tgz
+# no need to mv
+
+wget_source https://download.gnome.org/sources/libxml2/2.15/libxml2-2.15.1.tar.xz
+mv libxml2-2.15.1 libxml2
+
 wget_source https://github.com/uxlfoundation/oneTBB/archive/refs/tags/v2022.3.0.zip
 mv oneTBB-2022.3.0 oneTBB
 
@@ -107,16 +113,10 @@ mv YDLidar-SDK-1.2.7 YDLidar-SDK
 wget_source https://github.com/ggml-org/llama.cpp/archive/refs/tags/b6910.zip
 mv llama.cpp-b6910 llama.cpp
 
-#wget_source https://github.com/flann-lib/flann/archive/refs/tags/1.9.2.zip
-#mv flann-1.9.2 flann
-#
-#wget_source https://github.com/PointCloudLibrary/pcl/releases/download/pcl-1.15.1/source.tar.gz
-## pcl don't need to mv
-#
-#wget_source https://dri.freedesktop.org/libdrm/libdrm-2.4.127.tar.xz
-#mv libdrm-2.4.127 libdrm
+wget_source https://github.com/lz4/lz4/archive/refs/tags/v1.10.0.zip
+mv lz4-1.10.0 lz4
 
-#tar -zcpvf ${CACHE_FILE} $SRCS
+tar -zcpvf ${CACHE_FILE} $SRCS
 
 fi
 

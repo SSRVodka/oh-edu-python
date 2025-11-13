@@ -32,8 +32,10 @@ export LD_LIBRARY_PATH=${BUILD_PYTHON_DIST}/lib:$LD_LIBRARY_PATH
 NUMPY_GT_V2=1
 if [ $NUMPY_GT_V2 -eq 0 ]; then
     NUMPY_LIBROOT=${HOST_SITE_PKGS}/numpy/core
+    NUMPY_VERSION=1.26.5
 else
     NUMPY_LIBROOT=${HOST_SITE_PKGS}/numpy/_core
+    NUMPY_VERSION=2.3.1
 fi
 
 
@@ -65,15 +67,5 @@ done
 
 ################################## Setup crossenv ##################################
 
-
-if [[ ! -d ${PY_CROSS_ROOT} ]]; then
-    $BUILD_PIP install crossenv
-    $BUILD_PYTHON -m crossenv \
-        $HOST_PYTHON \
-        crossenv_${OHOS_CPU}
-fi
-
-CROSS_ROOT=${CUR_DIR}/crossenv_${OHOS_CPU}
-. ${CROSS_ROOT}/bin/activate
-
+enter_pycrossenv
 

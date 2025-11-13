@@ -1,6 +1,39 @@
 #!/bin/bash
 
+# build native icu first
+pushd icu/source
+mkdir -p native-build
+pushd native-build
+../configure --prefix $PWD/install
+make -j
+popd
+popd
+
 . setup.sh
+
+# patch Makefile.inc of icu lib
+mkdir -p ${TARGET_ROOT}
+cat << EOF > ${TARGET_ROOT}/postinst
+#!/bin/bash
+set -Eeuo pipefail
+_prefix=\${1:-}
+if [ -z "\$_prefix" ]; then
+	echo "ERROR: empty prefix in 1st parameter"
+	exit 1
+fi
+final_mk=\$(readlink -f \${_prefix}/${OHOS_LIBDIR}/icu/Makefile.inc)
+sed -i -e "s|^\(libdir[[:space:]]*=[[:space:]]*\).*|\1\\\${prefix}/${OHOS_LIBDIR}|g" \
+	-e "s|^\(prefix[[:space:]]*=[[:space:]]*\).*|\1\${_prefix}|g" \
+	\${final_mk}
+EOF
+if [ -f icu/source/Makefile ]; then
+	pushd icu/source
+	make clean
+	popd
+fi
+build_makeproj_with_deps "icu" "" "--with-cross-build=${CUR_DIR}/icu/source/native-build" "" "" "" "icu/source"
+
+build_cmakeproj_with_deps "libxml2" "libiconv icu readline ncurses" "-DLIBXML2_WITH_HISTORY=ON -DLIBXML2_WITH_ICU=ON"
 
 # make nasm configure happy
 if [ ! -f nasm/nasm.1 ]; then
@@ -69,7 +102,6 @@ build_cmakeproj_with_deps "zeromq" "" "-DBUILD_SHARED_LIBS=ON"
 build_cmakeproj_with_deps "libexpat" "" "-DBUILD_SHARED_LIBS=ON -S expat"
 
 build_cmakeproj_with_deps "libpng" "" "-DBUILD_SHARED_LIBS=ON"
-build_makeproj_with_deps "freetype"
 
 build_cmakeproj_with_deps "g2o" "eigen SuiteSparse" "-DBUILD_SHARED_LIBS=ON"
 
@@ -106,7 +138,4 @@ build_cmakeproj_with_deps "llama.cpp" "openssl curl OpenBLAS" "-DBUILD_SHARED_LI
 
 build_makeproj_with_deps "rsync" "openssl zstd" "--disable-md2man --disable-xxhash --disable-lz4" "" "" "1"
 
-#build_cmakeproj_with_deps "flann" "" "-DBUILD_SHARED_LIBS=ON"
-#build_cmakeproj_with_deps "pcl" "eigen" "-DBUILD_SHARED_LIBS=ON"
-
-
+build_cmakeproj_with_deps "lz4" "" "-S build/cmake -DBUILD_SHARED_LIBS=ON"

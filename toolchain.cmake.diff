@@ -1,5 +1,5 @@
 --- /home/xhw/Desktop/OH/oh-cross-toolchain/ohos-sdk/15/native/build/cmake/ohos.toolchain.cmake.lock	2001-01-01 00:00:00.000000000 +0800
-+++ /home/xhw/Desktop/OH/oh-cross-toolchain/ohos-sdk/15/native/build/cmake/ohos.toolchain.cmake	2025-10-31 11:10:26.282785813 +0800
++++ /home/xhw/Desktop/OH/oh-cross-toolchain/ohos-sdk/15/native/build/cmake/ohos.toolchain.cmake	2025-11-10 10:04:17.551423068 +0800
 @@ -1,4 +1,4 @@
 -# Copyright (c) 2021 Huawei Device Co., Ltd.
 +# Copyright (c) 2025 SSRVodka
@@ -24,16 +24,19 @@
  
  if(NOT DEFINED OHOS_PLATFORM_LEVEL)
    set(OHOS_PLATFORM_LEVEL 1)
-@@ -88,7 +90,7 @@
+@@ -88,7 +90,10 @@
  set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
  set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
  set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 -list(APPEND CMAKE_FIND_ROOT_PATH "${OHOS_SDK_NATIVE}")
 +set(CMAKE_FIND_ROOT_PATH "${OHOS_SDK_NATIVE}/sysroot")
++if (DEFINED SSRVODKA_APPEND_CMAKE_FIND_ROOT_PATH)
++  list(APPEND CMAKE_FIND_ROOT_PATH ${SSRVODKA_APPEND_CMAKE_FIND_ROOT_PATH})
++endif()
  
  # set the arch abi
  set(CMAKE_OHOS_ARCH_ABI ${OHOS_ARCH})
-@@ -114,6 +116,10 @@
+@@ -114,6 +119,10 @@
  set(CMAKE_CXX_COMPILER_TARGET ${OHOS_LLVM})
  set(CMAKE_ASM_COMPILER_TARGET ${OHOS_LLVM})
  
@@ -44,7 +47,7 @@
  # Export configurable variables for the try_compile() command.
  set(CMAKE_TRY_COMPILE_PLATFORM_VARIABLES
    OHOS_SDK_NATIVE
-@@ -230,9 +236,62 @@
+@@ -230,9 +239,62 @@
  set(CMAKE_CXX_STANDARD_LIBRARIES_INIT "-lm")
  set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
  
@@ -108,7 +111,7 @@
  
  set(CMAKE_C_FLAGS_DEBUG "" CACHE STRING "Flags for debug variant builds.")
  set(CMAKE_C_FLAGS_DEBUG "${OHOS_DEBUG_COMPILER_FLAGS} ${CMAKE_C_FLAGS_DEBUG}")
-@@ -242,7 +301,7 @@
+@@ -242,7 +304,7 @@
  
  # set the cmake global cppflags
  set(CMAKE_CXX_FLAGS "" CACHE STRING "Flags for all build types.")
@@ -117,8 +120,19 @@
  
  set(CMAKE_CXX_FLAGS_DEBUG "" CACHE STRING "Flags for debug variant builds.")
  set(CMAKE_CXX_FLAGS_DEBUG "${OHOS_DEBUG_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG}")
-@@ -252,7 +311,7 @@
+@@ -250,9 +312,18 @@
+ set(CMAKE_CXX_FLAGS_RELEASE "" CACHE STRING "Flags for release variant builds.")
+ set(CMAKE_CXX_FLAGS_RELEASE "${OHOS_RELEASE_COMPILER_FLAGS} ${CMAKE_CXX_FLAGS_RELEASE}")
  
++# C preprocessor flags
++set(SSRVODKA_CPP_FLAGS)
++if (DEFINED SSRVODKA_APPEND_C_PREPROCESSOR_FLAGS)
++  separate_arguments(_extra_cpreprocessorflags NATIVE_COMMAND "${SSRVODKA_APPEND_C_PREPROCESSOR_FLAGS}")
++  list(APPEND SSRVODKA_CPP_FLAGS ${_extra_cpreprocessorflags})
++endif()
++string(REPLACE ";" " " SSRVODKA_CPP_FLAGS "${SSRVODKA_CPP_FLAGS}")
++add_compile_definitions(${SSRVODKA_CPP_FLAGS})
++
  # set the cmake global asmflags
  set(CMAKE_ASM_FLAGS "" CACHE STRING "Flags for all build types.")
 -set(CMAKE_ASM_FLAGS "${OHOS_ASM_COMPILER_FLAGS} ${CMAKE_ASM_FLAGS} -D__MUSL__")
@@ -126,7 +140,7 @@
  
  set(CMAKE_ASM_FLAGS_DEBUG "" CACHE STRING "Flags for debug variant builds.")
  set(CMAKE_ASM_FLAGS_DEBUG "${OHOS_DEBUG_COMPILER_FLAGS} ${CMAKE_ASM_FLAGS_DEBUG}")
-@@ -262,13 +321,13 @@
+@@ -262,13 +333,13 @@
  
  # set the link flags
  set(CMAKE_SHARED_LINKER_FLAGS "" CACHE STRING "Linker flags to be used to create shared libraries.")
@@ -143,7 +157,7 @@
  
  # set the executable suffix
  set(HOST_SYSTEM_EXE_SUFFIX)
-@@ -280,9 +339,8 @@
+@@ -280,9 +351,8 @@
  set(TOOLCHAIN_ROOT_PATH "${OHOS_SDK_NATIVE}/llvm")
  set(TOOLCHAIN_BIN_PATH  "${OHOS_SDK_NATIVE}/llvm/bin")
  
@@ -154,7 +168,7 @@
  set(CMAKE_C_COMPILER_EXTERNAL_TOOLCHAIN   "${TOOLCHAIN_ROOT_PATH}")
  set(CMAKE_CXX_COMPILER_EXTERNAL_TOOLCHAIN "${TOOLCHAIN_ROOT_PATH}")
  set(CMAKE_ASM_COMPILER_EXTERNAL_TOOLCHAIN "${TOOLCHAIN_ROOT_PATH}")
-@@ -293,4 +351,11 @@
+@@ -293,4 +363,11 @@
  set(OHOS_RANLIB "${TOOLCHAIN_BIN_PATH}/llvm-ranlib${HOST_SYSTEM_EXE_SUFFIX}")
  set(CMAKE_AR                "${OHOS_AR}" CACHE FILEPATH "Archiver")
  set(CMAKE_RANLIB            "${OHOS_RANLIB}" CACHE FILEPATH "Ranlib")

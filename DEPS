@@ -7,3 +7,7 @@ apt install -y ninja-build
 apt install -y git zip
 # grpc host build
 apt install -y cmake
+# mesa deps
+apt install -y glslang-tools
+# fontconfig deps
+apt install -y gperf

@@ -14,13 +14,13 @@ This repository provides only a comprehensive migration solution at the source c
 
 We have already ported:
 
-- 50+ system-wide libraries. See: [VERSIONS](./VERSIONS)
+- 70+ system-wide libraries. See: [VERSIONS](./VERSIONS)
 - Python3 (currently support 3.12.12 AND 3.11.4)
 - some third-party libraries that depend on C/C++ modules to OpenHarmony Edu 5.0.2. 
 
 ## Progress
 
-- [x] 50+ system libraries (e.g. openblas, binutils, zstd, curl, ...)
+- [x] 70+ system libraries (e.g. openblas, binutils, zstd, curl, ...)
 - [x] Python interpreter, and common native libraries: libaacplus, x264, alsa-lib, ffmpeg, bzip2, gettext, libffi, ncurses, OpenBLAS, openssl, readline, sqlite3, xz, zlib;
 - [x] Python third-party libraries: numpy, scipy, opencv, onnxruntime;
 - [ ] ......
