@@ -25,11 +25,16 @@ sed -i '\|__OPENHARMONY__|! s|^\(#if !defined(__NetBSD__) \&\& !defined(__ANDROI
 sed -i '\|python|! s|^\(TARGET_LINK_LIBRARIES(pybullet[[:space:]]*\)\(BulletRoboticsGUI.*\)$|\1python3.12 \2|' bullet3/examples/pybullet/CMakeLists.txt
 # why it will build shared lib without STATIC even STATIC is default? We don't know :(
 sed -i '\|STATIC|! s|^\(ADD_LIBRARY(gwen[[:space:]]*\)\(.*)\)$|\1STATIC \2|' bullet3/examples/ThirdPartyLibs/Gwen/CMakeLists.txt
+_bullet_libsuffix="${OHOS_LIBDIR#*/}"
+_bullet_extflag=""
+if [ ! "$_bullet_libsuffix" == "${OHOS_LIBDIR}" ]; then
+	_bullet_extflag="-DLIB_SUFFIX=/${_bullet_libsuffix}"
+fi
 # deps: glu mesa xorg python
 # not support libdir
 build_cmakeproj_with_deps "bullet3" "glu mesa xorg Python" \
 	"\
-	-DLIB_SUFFIX=/${OHOS_CPU}-linux-ohos \
+	${_bullet_extflag} \
 	-DBUILD_PYBULLET=ON \
 	-DBUILD_PYBULLET_NUMPY=ON \
 	-DUSE_DOUBLE_PRECISION=ON \
@@ -45,8 +50,10 @@ build_cmakeproj_with_deps "bullet3" "glu mesa xorg Python" \
 	"" \
 	"20"
 
-# remove arch-dependent libs not in ${OHOS_LIBDIR} (also useless)
-rm -f ${TARGET_ROOT}.bullet3/lib/libclsocket.a
+if [ ! "${OHOS_LIBDIR}" == "lib" ]; then
+	# remove arch-dependent libs not in ${OHOS_LIBDIR} (also useless)
+	rm -f ${TARGET_ROOT}.bullet3/lib/libclsocket.a
+fi
 
 # TODO: fix rubbish pybullet setup.py
 

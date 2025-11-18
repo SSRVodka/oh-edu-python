@@ -10,10 +10,10 @@ namespace fs = std::filesystem;
 
 static constexpr int CMD_BUFSIZE = 16384;
 // modified by script at compile time
-static const std::string NATIVE_LLVM_CONFIG = "/mnt/xhw/llvm/native-build/bin/llvm-config";
-static const std::string TARGET_LLVM_PREFIX = "/mnt/xhw/dist.x86_64.llvm";
-static const std::string OHOS_LIBDIR = "lib/x86_64-linux-ohos";
-static const std::string OHOS_CPU = "x86_64";
+static const std::string NATIVE_LLVM_CONFIG = "";
+static const std::string TARGET_LLVM_PREFIX = "";
+static const std::string OHOS_LIBDIR = "";
+static const std::string OHOS_CPU = "";
 
 
 // Helper function to execute a command and capture output

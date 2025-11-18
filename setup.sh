@@ -8,6 +8,25 @@ info () { printf "%b%s%b" "\E[1;34m❯ \E[1;36m" "${1:-}" "\E[0m\n"; }
 error () { printf "%b%s%b" "\E[1;31m❯ " "ERROR: ${1:-}" "\E[0m\n" >&2; }
 warn () { printf "%b%s%b" "\E[1;31m❯ " "Warning: ${1:-}" "\E[0m\n" >&2; }
 
+compare_versions() {
+	local v1="$1"
+	local v2="$2"
+	local max_version=$(echo -e "$v1\n$v2" | sort -Vr | head -n1)
+	
+	if [[ "$v1" == "$max_version" ]]; then
+		if [[ "$v2" == "$max_version" ]]; then
+			# version equal
+			echo 0
+		else
+			# v1 is greater
+			echo 1
+		fi
+	else
+		# v2 is greater
+		echo -1
+	fi
+}
+
 replace_textline_with() {
 	local old=$1
 	local new=$2
@@ -169,6 +188,11 @@ build_makeproj_with_deps() {
 	else
 		patch_libdir_origin $target_dir
 	fi
+	# some package configs may locate in share/: like xorg, asio (header-only)
+	sharedir=${TARGET_ROOT}.${target_dir}/share
+	if [ -d $sharedir ]; then
+		patch_libdir_origin $target_dir "" "" "${TARGET_ROOT}.${target_dir}/share"
+	fi
 }
 
 build_cmakeproj_with_deps() {
@@ -243,6 +267,11 @@ build_cmakeproj_with_deps() {
 		warn "library '$target_dir' doesn't have an arch-dependent library directory '$dst_archlibdir'"
 	else
 		patch_libdir_origin $target_dir
+	fi
+	# some package configs may locate in share/: like xorg, asio (header-only)
+	sharedir=${TARGET_ROOT}.${target_dir}/share
+	if [ -d $sharedir ]; then
+		patch_libdir_origin $target_dir "" "" "${TARGET_ROOT}.${target_dir}/share"
 	fi
 }
 
@@ -319,6 +348,11 @@ build_mesonproj_with_deps() {
 		warn "library '$target_dir' doesn't have an arch-dependent library directory '$dst_archlibdir'"
 	else
 		patch_libdir_origin $target_dir
+	fi
+	# some package configs may locate in share/: like xorg, asio (header-only)
+	sharedir=${TARGET_ROOT}.${target_dir}/share
+	if [ -d $sharedir ]; then
+		patch_libdir_origin $target_dir "" "" "${TARGET_ROOT}.${target_dir}/share"
 	fi
 }
 
@@ -410,9 +444,10 @@ ARCH=${OHOS_ARCH}
 TARGET_ROOT=${CUR_DIR}/dist.${OHOS_CPU}
 TEST_DIR=${CUR_DIR}/test-only
 
-# OHOS_LIB_DIR=lib
+# export for cmake toolchain file
+export OHOS_LIBDIR=lib
 # Set this for OHOS sdk installation
-OHOS_LIBDIR=lib/${OHOS_CPU}-linux-ohos
+# export OHOS_LIBDIR=lib/${OHOS_CPU}-linux-ohos
 
 # NOTE: We no longer need gfortran for OpenBLAS
 ## Note: Fortran compiler should be changed with ARCH
@@ -630,3 +665,4 @@ HOST_SITE_PKGS=${PY_CROSS_ROOT}/cross/lib/python${PY_VERSION}/site-packages
 PYPKG_NATIVE_OUTPUT_DIR=${CUR_DIR}/dist-pypkgs.native.${OHOS_CPU}
 PYPKG_OUTPUT_WHEEL_DIR=${CUR_DIR}/dist.wheels
 
+mkdir -p ${PYPKG_OUTPUT_WHEEL_DIR}

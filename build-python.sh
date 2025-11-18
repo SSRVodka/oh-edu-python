@@ -64,7 +64,9 @@ bzip_archlib_dst=${TARGET_ROOT}/${OHOS_LIBDIR}
 mkdir -p $bzip_archlib_dst
 cp libbz2.so.* $bzip_archlib_dst
 # bzip2 doesn't support --libdir
-mv $bzip_archlib_dst/../*.a $bzip_archlib_dst
+if [ ! ${TARGET_ROOT}/lib == ${bzip_archlib_dst} ]; then
+	mv ${TARGET_ROOT}/lib/*.a $bzip_archlib_dst
+fi
 popd
 mv ${TARGET_ROOT} ${TARGET_ROOT}.bzip2
 patch_libdir_origin "bzip2"

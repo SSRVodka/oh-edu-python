@@ -8,6 +8,9 @@ CACHE_FILE=__hw_cache_pypkgs.tar.gz
 DIRS="cython numpy numpy2 onnxruntime opencv-python"
 
 rm -rf $DIRS
+if [ "${1:-}" == "--rm" ]; then
+	exit 0
+fi
 
 if [ -f ${CACHE_FILE} ]; then
 

@@ -9,6 +9,9 @@ CACHE_FILE=__hw_cache_gcc.tar.gz
 SRCS="gmp mpfr mpc gcc binutils m4 patchelf"
 
 rm -rf $SRCS
+if [ "${1:-}" == "--rm" ]; then
+	exit 0
+fi
 
 if [ -f "$CACHE_FILE" ]; then
 	

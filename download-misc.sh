@@ -7,15 +7,21 @@ set -Eeuo pipefail
 
 CACHE_FILE=__hw_cache_misc.tar.gz
 
-SRCS="acl attr assimp fmt yaml-cpp libpsl curl boost eigen qhull libccd SuiteSparse gflags glog ceres-solver zstd zeromq libexpat libpng freetype g2o geographiclib tinyxml2 icu libxml2 oneTBB pcre2 swig rsync nasm YDLidar-SDK llama.cpp lz4"
+SRCS="asio acl attr assimp fmt yaml-cpp libpsl curl boost eigen qhull libccd SuiteSparse gflags glog ceres-solver zstd zeromq libexpat libpng freetype g2o geographiclib tinyxml2 icu libxml2 oneTBB pcre2 swig rsync nasm YDLidar-SDK llama.cpp lz4 console_bridge"
 
 rm -rf $SRCS
+if [ "${1:-}" == "--rm" ]; then
+	exit 0
+fi
 
 if [ -f "$CACHE_FILE" ]; then
 	
 tar -zxpvf ${CACHE_FILE}
 
 else
+
+wget_source https://github.com/chriskohlhoff/asio/archive/refs/tags/asio-1-36-0.zip
+mv asio-asio-1-36-0 asio
 
 wget_source https://download.savannah.nongnu.org/releases/acl/acl-2.3.1.tar.xz
 mv acl-2.3.1 acl
@@ -115,6 +121,9 @@ mv llama.cpp-b6910 llama.cpp
 
 wget_source https://github.com/lz4/lz4/archive/refs/tags/v1.10.0.zip
 mv lz4-1.10.0 lz4
+
+wget_source https://github.com/ros/console_bridge/archive/refs/tags/1.0.2.zip
+mv console_bridge-1.0.2 console_bridge
 
 tar -zcpvf ${CACHE_FILE} $SRCS
 

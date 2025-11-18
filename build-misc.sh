@@ -35,6 +35,10 @@ build_makeproj_with_deps "icu" "" "--with-cross-build=${CUR_DIR}/icu/source/nati
 
 build_cmakeproj_with_deps "libxml2" "libiconv icu readline ncurses" "-DLIBXML2_WITH_HISTORY=ON -DLIBXML2_WITH_ICU=ON"
 
+build_makeproj_with_deps "asio" "" "" "./autogen.sh" "" "" "asio/asio"
+
+build_cmakeproj_with_deps "console_bridge" "" "-DBUILD_SHARED_LIBS=ON"
+
 # make nasm configure happy
 if [ ! -f nasm/nasm.1 ]; then
 	touch nasm/nasm.1 nasm/ndisasm.1

@@ -10,6 +10,9 @@ CACHE_FILE=__hw_cache_gui.tar.gz
 SRCS="freetype fontconfig libdrm SPIRV-Headers SPIRV-Tools SPIRV-LLVM-Translator glslang util-macros xcb-proto xorgproto libXau libxcb xlibs xprotos mesa glu ogre bullet3 flann pcl"
 
 rm -rf $SRCS
+if [ "${1:-}" == "--rm" ]; then
+	exit 0
+fi
 
 if [ -f "$CACHE_FILE" ]; then
 	

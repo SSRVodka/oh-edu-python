@@ -6,6 +6,13 @@ if [ "$OHOS_ARCH" == "x86_64" ]; then
 	OHOS_ARCH="x86-64"
 fi
 
+# fuck OpenHarmony API
+ver_cmp=$(compare_versions "${OHOS_SDK_API_VERSION}" "15")
+if [ $ver_cmp == -1 ]; then
+	error "Qt5 only support OHOS API greater then 15"
+	exit 1
+fi
+
 # apply patches
 QT_VERSION=v5.15.12
 

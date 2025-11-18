@@ -8,6 +8,9 @@ CACHE_FILE=__hw_cache.tar.gz
 DIRS="zlib libffi bzip2 xz readline openssl sqlite ncurses gettext Python BPython OpenBLAS libaacplus x264 alsa-lib ffmpeg libiconv util-linux"
 
 rm -rf $DIRS
+if [ "${1:-}" == "--rm" ]; then
+	exit 0
+fi
 
 if [ -f ${CACHE_FILE} ]; then
 

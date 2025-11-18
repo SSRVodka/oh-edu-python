@@ -74,6 +74,7 @@ ogre
 bullet3
 flann
 pcl
+console_bridge
 
 qt-ohos-patches
 qt5-ohos

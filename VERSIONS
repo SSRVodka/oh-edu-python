@@ -21,6 +21,7 @@ mpfr		libmpfr		4.2.2		libgmp>=6.3
 mpc		libmpc		1.3.1		libgmp>=6.3,libmpfr>=4.0.0
 binutils	binutils	2.44
 patchelf	patchelf	0.18.0
+asio		asio		1.36.0
 acl		acl		2.3.1		attr>=2.5
 attr		attr		2.5.1
 assimp		assimp		6.0.2
@@ -40,6 +41,7 @@ zstd		zstd		1.5.7
 zeromq		libzmq		4.3.5
 libexpat	libexpat	2.7.3
 libpng		libpng		1.6.50
+console_bridge	console_bridge	1.0.2
 freetype	freetype	2.14.1
 fontconfig	fontconfig	2.17.1		freetype>2.0,libncursesw>6.0,libreadline>8.0,icu>70.0,libexpat>2.0,libxml2>2.0,libiconv>1.0
 g2o		g2o		2024.12.28	eigen3,SuiteSparse>7.0
@@ -62,10 +64,10 @@ llvm		llvm		21.1.4
 libdrm		libdrm		2.4.127
 SPIRV-Headers	SPIRV-Headers	1.4.328
 SPIRV-Tools	SPIRV-Tools	1.4.328		SPIRV-Headers==1.4.328
-SPIRV-LLVM-Translator	SPIRV-LLVM-Translator	21.1.1	SPIRV-Headers>=1.4,SPRIV-Tools>=1.4,llvm>20.0
+SPIRV-LLVM-Translator	SPIRV-LLVM-Translator	21.1.1	SPIRV-Headers>=1.4,SPIRV-Tools>=1.4,llvm>20.0
 glslang		glslang		16.0.0		SPIRV-LLVM-Translator>=21.0
 xorg		xorg		7.0		fontconfig>=2.17
-mesa		mesa		25.2.2		xorg>=7.0,glslang>=16.0,llvm>20.0,SPIRV-LLVM-Translator>=21.0,zstd>=1.0
+mesa		mesa		25.2.2		xorg>=7.0,libdrm>2.0,glslang>=16.0,llvm>20.0,SPIRV-LLVM-Translator>=21.0,zstd>=1.0
 glu		glu		9.0.3		mesa>=25.0
 ogre		ogre		14.4.1		mesa>=25.0,xorg,freetype>2.0
 flann		flann		1.9.2		lz4>1.0

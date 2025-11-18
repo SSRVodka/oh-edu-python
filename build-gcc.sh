@@ -5,7 +5,7 @@
 build_makeproj_with_deps "gmp"
 build_makeproj_with_deps "mpfr" "gmp"
 build_makeproj_with_deps "mpc" "gmp mpfr"
-build_makeproj_with_deps "binutils"
+build_makeproj_with_deps "binutils" "" "--enable-install-libiberty"
 build_makeproj_with_deps "patchelf" "" "" "./bootstrap.sh"
 
 # already built in python

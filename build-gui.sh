@@ -190,7 +190,7 @@ sed -i -e "\|ohos|! s|^\(system_has_kms_drm[[:space:]]*=[[:space:]]*.*'linux',[[
 sed -i -e "\|//|! s|\(pthread_cancel(.*);\)|// \1\nprintf(\"OHOS not support pthread_cancel\");exit(1);|g" \
 	-e "\|//|! s|\(pthread_setcanceltype(.*);\)|// \1\nprintf(\"OHOS not support pthread_setcanceltype\");exit(1);|g" \
 	mesa/src/vulkan/wsi/wsi_common_display.c
-# deps: xorg, glslang, llvm, SPIRV-*, zstd
+# deps: xorg, libdrm, glslang, llvm, SPIRV-*, zstd
 _pre_mesa_cflags=$CFLAGS
 _pre_mesa_cxxflags=$CXXFLAGS
 _pre_mesa_cppflags=$CPPFLAGS
@@ -259,7 +259,12 @@ CXXFLAGS=$_pre_ogre_cxxflags
 
 # not support libdir
 sed -i "\|${OHOS_LIBDIR}|! s|^\(set(config_install_dir \"\)lib\(/cmake/.*\)$|\1${OHOS_LIBDIR}\2|" flann/CMakeLists.txt
-build_cmakeproj_with_deps "flann" "lz4" "-DLIB_SUFFIX=/${OHOS_CPU}-linux-ohos -DBUILD_SHARED_LIBS=ON -DBUILD_MATLAB_BINDINGS=OFF -DBUILD_PYTHON_BINDINGS=OFF"
+_flann_flags="-DBUILD_SHARED_LIBS=ON -DBUILD_MATLAB_BINDINGS=OFF -DBUILD_PYTHON_BINDINGS=OFF"
+_flann_libsuffix="${OHOS_LIBDIR#*/}"
+if [ ! "$_flann_libsuffix" == "${OHOS_LIBDIR}" ]; then
+	_flann_flags="-DLIB_SUFFIX=/$_flann_libsuffix"
+fi
+build_cmakeproj_with_deps "flann" "lz4" "$_flann_flags"
 
 # deps mesa boost eigen libpng qhull flann
 build_cmakeproj_with_deps "pcl" "mesa xorg boost eigen libpng qhull flann lz4" "-DBUILD_SHARED_LIBS=ON -DLIB_INSTALL_DIR=${OHOS_LIBDIR}" "" "" "" "" "20"

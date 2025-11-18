@@ -76,11 +76,16 @@ sed -i '\|__OPENHARMONY__|! s|^\(#if defined(__x86_64__) \&\& defined(__ELF__) \
 	llvm/llvm/tools/llvm-rtdyld/llvm-rtdyld.cpp
 
 pushd llvm
+LLVM_LIBSUFFIX="${OHOS_LIBDIR#*/}"
+LLVM_EXTFLAG=""
+if [ ! $LLVM_LIBSUFFIX == "$OHOS_LIBDIR" ]]; then
+	LLVM_EXTFLAG="-DLLVM_LIBDIR_SUFFIX=/${LLVM_LIBSUFFIX}"
+fi
 $CMAKE_BIN \
 	${COMP_FLAGS} \
 	-DCMAKE_INSTALL_LIBDIR=${OHOS_LIBDIR} \
 	-DCMAKE_INSTALL_PACKAGEDIR=${OHOS_LIBDIR}/cmake \
-	-DLLVM_LIBDIR_SUFFIX="/${OHOS_CPU}-linux-ohos" \
+	${LLVM_EXTFLAG} \
 	-DLLVM_ENABLE_PROJECTS="lld;clang" \
 	-DCMAKE_TOOLCHAIN_FILE=$(pwd)/../$TARGET-clang.cmake \
 	-DLLVM_LINK_LLVM_DYLIB=ON \
@@ -90,15 +95,15 @@ $CMAKE_BIN \
 $CMAKE_BIN --build ohos-build -- -j20
 $CMAKE_BIN --install ohos-build
 
-## native build
-#$CMAKE_BIN \
-#	-DCMAKE_BUILD_TYPE=Release \
-#	-DCMAKE_VERBOSE_MAKEFILE=ON \
-#	-DLLVM_ENABLE_PROJECTS="lld;clang" \
-#	-DLLVM_LINK_LLVM_DYLIB=ON \
-#	-S llvm \
-#	-B native-build
-#$CMAKE_BIN --build native-build -- -j20
+# native build
+$CMAKE_BIN \
+	-DCMAKE_BUILD_TYPE=Release \
+	-DCMAKE_VERBOSE_MAKEFILE=ON \
+	-DLLVM_ENABLE_PROJECTS="lld;clang" \
+	-DLLVM_LINK_LLVM_DYLIB=ON \
+	-S llvm \
+	-B native-build
+$CMAKE_BIN --build native-build -- -j20
 
 popd
 
