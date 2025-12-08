@@ -48,6 +48,8 @@ build_makeproj_with_deps "nasm" "" "" "./autogen.sh"
 INSTALL_USER=root INSTALL_GROUP=root build_makeproj_with_deps "attr"
 build_makeproj_with_deps "acl" "attr"
 build_cmakeproj_with_deps "assimp" "" "-DBUILD_SHARED_LIBS=ON"
+# remove link flag pollution
+sed -i '/INTERFACE_LINK_LIBRARIES/d' ${TARGET_ROOT}.assimp/${OHOS_LIBDIR}/cmake/assimp-6.0/assimpTargets.cmake
 build_cmakeproj_with_deps "fmt" "" "-DBUILD_SHARED_LIBS=ON"
 build_cmakeproj_with_deps "yaml-cpp" "" "-DBUILD_SHARED_LIBS=ON"
 
@@ -69,9 +71,20 @@ fi
 pushd boost
 BOOST_PREFIX=${TARGET_ROOT}.boost
 
-./bootstrap.sh --with-toolset=gcc --prefix=$BOOST_PREFIX --libdir=$BOOST_PREFIX/${OHOS_LIBDIR} --without-libraries=log,locale
+PYTHON_PREFIX=${TARGET_ROOT}.Python
+
+./bootstrap.sh \
+	--with-toolset=gcc \
+	--with-python=${PYTHON_PREFIX}/bin/python3 \
+	--with-python-version=${PY_VERSION} \
+	--with-python-root=${PYTHON_PREFIX}/lib/python3.12 \
+	--prefix=$BOOST_PREFIX \
+	--libdir=$BOOST_PREFIX/${OHOS_LIBDIR} \
+	--without-libraries=log,locale
 sed -i '/.*using gcc ;/c\    using gcc : '"${OHOS_CPU}"' : '"${OHOS_SDK}"'/native/llvm/bin/'"${OHOS_CPU}"'-unknown-linux-ohos-clang ; ' project-config.jam
-./b2 cxxflags="$CXXFLAGS" cflags="$CFLAGS" variant=release
+echo "using python : ${PY_VERSION} : : ${PYTHON_PREFIX}/include/python${PY_VERSION} : ${PYTHON_PREFIX}/lib ;" >> project-config.jam
+# sed -i "\|${TARGET_ROOT}|! s|# \(using python :\) .* ;|\1 3.12 : ${TARGET_ROOT}.Python/bin/python3 : ${TARGET_ROOT}.Python/include/python3.12 : ${TARGET_ROOT}.Python/lib ;|" tools/build/example/user-config.jam
+./b2 cxxflags="$CXXFLAGS" cflags="$CFLAGS" variant=release python=${PY_VERSION} --with-python
 ./b2 install
 
 popd
@@ -87,12 +100,17 @@ rm -rf ${TARGET_ROOT}.qhull/lib/{cmake,pkgconfig}
 # patch libccd for libm
 sed -i 's|^if\(NOT WIN32\)|if(NOT WIN32 AND NOT OHOS)|g' libccd/src/CMakeLists.txt
 build_cmakeproj_with_deps "libccd" "" "-DBUILD_SHARED_LIBS=ON"
+# remove libm pollution
+sed -i '/IMPORTED_LINK_INTERFACE_LIBRARIES_RELEASE.*/d' ${TARGET_ROOT}.libccd/${OHOS_LIBDIR}/ccd/ccd-targets-release.cmake
+exit 0
 
 build_cmakeproj_with_deps "SuiteSparse" "gmp mpfr OpenBLAS" "-DBUILD_SHARED_LIBS=ON -DGRAPHBLAS_USE_JIT=OFF"
 
 
 build_cmakeproj_with_deps "gflags" "" "-DBUILD_SHARED_LIBS=ON -DGFLAGS_LIBRARY_INSTALL_DIR=${OHOS_LIBDIR}"
 build_cmakeproj_with_deps "glog" "gflags" "-DBUILD_SHARED_LIBS=ON"
+
+build_cmakeproj_with_deps "gtest" "" "-DBUILD_SHARED_LIBS=ON"
 
 build_cmakeproj_with_deps "ceres-solver" "gflags glog eigen OpenBLAS SuiteSparse" "-DBUILD_SHARED_LIBS=ON"
 
@@ -143,3 +161,16 @@ build_cmakeproj_with_deps "llama.cpp" "openssl curl OpenBLAS" "-DBUILD_SHARED_LI
 build_makeproj_with_deps "rsync" "openssl zstd" "--disable-md2man --disable-xxhash --disable-lz4" "" "" "1"
 
 build_cmakeproj_with_deps "lz4" "" "-S build/cmake -DBUILD_SHARED_LIBS=ON"
+
+# We will build the subprojects in ROS2 packages
+# override datadir for ROS2 installation: use liboctomap-dev as sysdeps instead of a ROS2 package
+build_cmakeproj_with_deps "octomap" "" "-DBUILD_SHARED_LIBS=ON -DBUILD_OCTOVIS_SUBPROJECT=OFF -DBUILD_DYNAMICETD3D_SUBPROJECT=OFF -DCMAKE_INSTALL_DATADIR=${OHOS_LIBDIR}/cmake"
+rm -rf ${TARGET_ROOT}.octomap/share
+
+build_cmakeproj_with_deps "xtl" "" "-DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_DATAROOTDIR=${OHOS_LIBDIR}"
+build_cmakeproj_with_deps "xtensor" "xtl" "-DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_DATAROOTDIR=${OHOS_LIBDIR}"
+build_cmakeproj_with_deps "xsimd" "xtl" "-DBUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_DATAROOTDIR=${OHOS_LIBDIR}"
+
+build_cmakeproj_with_deps "nanoflann" "" "-DCMAKE_INSTALL_DATADIR=${OHOS_LIBDIR}"
+
+build_cmakeproj_with_deps "nlohmann-json" "" "-DCMAKE_INSTALL_DATADIR=${OHOS_LIBDIR}"

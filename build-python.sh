@@ -182,7 +182,12 @@ find "${_DIST_LIB_DYLOAD_PATH}" -type f -name "*.so" -print0 | while IFS= read -
     fi
 done
 
-mv ${TARGET_ROOT} ${TARGET_ROOT}.Python
+if [ -d ${TARGET_ROOT}.Python ]; then
+	cp -r ${TARGET_ROOT}/* ${TARGET_ROOT}.Python/
+	rm -rf ${TARGET_ROOT}
+else
+	mv ${TARGET_ROOT} ${TARGET_ROOT}.Python
+fi
 # Patch other info
 patch_libdir_origin "Python" "skip-patch-so"
 

@@ -30,6 +30,18 @@ _bullet_extflag=""
 if [ ! "$_bullet_libsuffix" == "${OHOS_LIBDIR}" ]; then
 	_bullet_extflag="-DLIB_SUFFIX=/${_bullet_libsuffix}"
 fi
+# patch for cmake dev config
+mkdir ${TARGET_ROOT}.bullet3
+cat << EOF > ${TARGET_ROOT}.bullet3/postinst
+#!/bin/bash
+set -Eeuo pipefail
+_prefix=\${1:-}
+if [ -z "\$_prefix" ]; then
+	echo "ERROR: empty prefix in 1st parameter"
+	exit 1
+fi
+sed -i "s|\\(.* BULLET_ROOT_DIR .*\\"\\).*\\(\\".*\\)|\1\${_prefix}\2|" \${_prefix}/${OHOS_LIBDIR}/cmake/bullet/BulletConfig.cmake
+EOF
 # deps: glu mesa xorg python
 # not support libdir
 build_cmakeproj_with_deps "bullet3" "glu mesa xorg Python" \

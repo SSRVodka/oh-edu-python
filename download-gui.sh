@@ -7,7 +7,7 @@ set -Eeuo pipefail
 
 CACHE_FILE=__hw_cache_gui.tar.gz
 
-SRCS="freetype fontconfig libdrm SPIRV-Headers SPIRV-Tools SPIRV-LLVM-Translator glslang util-macros xcb-proto xorgproto libXau libxcb xlibs xprotos mesa glu ogre bullet3 flann pcl"
+SRCS="freetype fontconfig libdrm SPIRV-Headers SPIRV-Tools SPIRV-LLVM-Translator glslang util-macros xcb-proto xorgproto libXau libxcb xlibs xprotos mesa glu ogre bullet3 GraphicsMagick flann pcl"
 
 rm -rf $SRCS
 if [ "${1:-}" == "--rm" ]; then
@@ -182,6 +182,9 @@ mv ogre-14.4.1 ogre
 
 wget_source https://github.com/bulletphysics/bullet3/archive/refs/tags/3.25.zip
 mv bullet3-3.25 bullet3
+
+wget_source https://pilotfiber.dl.sourceforge.net/project/graphicsmagick/graphicsmagick/1.3.45/GraphicsMagick-1.3.45.tar.xz
+mv GraphicsMagick-1.3.45 GraphicMagick
 
 wget_source https://github.com/flann-lib/flann/archive/refs/tags/1.9.2.zip
 mv flann-1.9.2 flann

@@ -1,4 +1,5 @@
 #!/bin/bash
+# Note: it must be called after build-pypkg-numpy-and-scipy.sh is executed (cython dep)
 
 set -e
 

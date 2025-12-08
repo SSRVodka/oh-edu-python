@@ -29,7 +29,7 @@ export LD_LIBRARY_PATH=${BUILD_PYTHON_DIST}/lib:$LD_LIBRARY_PATH
 
 
 # Numpy version >= 2.0
-NUMPY_GT_V2=1
+NUMPY_GT_V2=0
 if [ $NUMPY_GT_V2 -eq 0 ]; then
     NUMPY_LIBROOT=${HOST_SITE_PKGS}/numpy/core
     NUMPY_VERSION=1.26.5

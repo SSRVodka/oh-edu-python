@@ -257,12 +257,23 @@ CXXFLAGS=$_pre_ogre_cxxflags
 #	-DBT_USE_EGL=ON \
 #	"
 
+build_makeproj_with_deps "GraphicsMagick" "bzip2 icu freetype libpng xz libxml2 zlib zstd" "--enable-shared"
+
 # not support libdir
 sed -i "\|${OHOS_LIBDIR}|! s|^\(set(config_install_dir \"\)lib\(/cmake/.*\)$|\1${OHOS_LIBDIR}\2|" flann/CMakeLists.txt
 _flann_flags="-DBUILD_SHARED_LIBS=ON -DBUILD_MATLAB_BINDINGS=OFF -DBUILD_PYTHON_BINDINGS=OFF"
 _flann_libsuffix="${OHOS_LIBDIR#*/}"
 if [ ! "$_flann_libsuffix" == "${OHOS_LIBDIR}" ]; then
 	_flann_flags="-DLIB_SUFFIX=/$_flann_libsuffix"
+fi
+# patch cmake absolute dir: not using pkg_check_modules
+sed -i -e "s/.*LZ4_INCLUDE_DIRS.*/find_package(lz4 CONFIG REQUIRED)/" \
+	-e "s/pkg_check_modules.*/set(LZ4_STATIC_LDFLAGS \"-llz4\")/" \
+	flann/CMakeLists.txt
+sed -i "s/\(target_link_libraries(.*\) \${LZ4_LINK_LIBRARIES}\()\)/\1 PUBLIC LZ4::lz4\2/" \
+	flann/src/cpp/CMakeLists.txt
+if ! grep -qF "find_dependency(lz4 REQUIRED)" "flann/cmake/Config.cmake.in"; then
+	echo -e "include(CMakeFindDependencyMacro)\nfind_dependency(lz4 REQUIRED)" >> "flann/cmake/Config.cmake.in"
 fi
 build_cmakeproj_with_deps "flann" "lz4" "$_flann_flags"
 

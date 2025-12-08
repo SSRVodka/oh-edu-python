@@ -6,7 +6,104 @@ cd $CUR_DIR
 
 info () { printf "%b%s%b" "\E[1;34m❯ \E[1;36m" "${1:-}" "\E[0m\n"; }
 error () { printf "%b%s%b" "\E[1;31m❯ " "ERROR: ${1:-}" "\E[0m\n" >&2; }
-warn () { printf "%b%s%b" "\E[1;31m❯ " "Warning: ${1:-}" "\E[0m\n" >&2; }
+warn () { printf "%b%s%b" "\E[1;33m❯ " "Warning: ${1:-}" "\E[0m\n" >&2; }
+
+
+OLD_PATH=$PATH
+OLD_LD_LIBPATH=${LD_LIBRARY_PATH:=""}
+
+trap "export PATH=${OLD_PATH}; export LD_LIBRARY_PATH=${OLD_LD_LIBPATH}; unset CC CXX AS LD LDXX LLD STRIP RANLIB OBJDUMP OBJCOPY READELF NM AR PROFDATA CFLAGS CXXFLAGS CPPFLAGS LDFLAGS LDSHARED PKG_CONFIG_PATH PKG_CONFIG_LIBDIR PKG_CONFIG_SYSTEM_IGNORE_PATH" ERR SIGINT SIGTERM
+
+if [ -z "${OHOS_SDK:-}" ]; then
+	warn "please set OHOS_SDK env first"
+	exit 0
+fi
+OHOS_SDK_API_VERSION=$(cat ${OHOS_SDK}/toolchains/oh-uni-package.json | grep "apiVersion" | tr -d [:space:] | awk -F':' '{print $2}' | awk -F'"' '{print $2}')
+
+BUILD_PLATFORM_TRIPLET=x86_64-pc-linux-gnu
+
+CMAKE_BIN=${OHOS_SDK}/native/build-tools/cmake/bin/cmake
+#CMAKE_TOOLCHAIN_CONFIG=${OHOS_SDK}/native/build/cmake/ohos.toolchain.cmake
+CMAKE_TOOLCHAIN_CONFIG=${CUR_DIR}/cmake/ohos.toolchain.xhw.cmake
+
+OHOS_CPU=aarch64
+OHOS_ARCH=arm64-v8a
+# OHOS_CPU=arm
+# OHOS_ARCH=armeabi-v7a
+# OHOS_CPU=x86_64
+# OHOS_ARCH=x86_64
+
+ARCH=${OHOS_ARCH}
+
+SRC_ROOT=${CUR_DIR}/.staging
+mkdir -p ${SRC_ROOT}
+TARGET_ROOT=${CUR_DIR}/dist.${OHOS_CPU}
+TEST_DIR=${CUR_DIR}/test-only
+
+# export for cmake toolchain file
+export OHOS_LIBDIR=lib
+# Set this for OHOS sdk installation
+# export OHOS_LIBDIR=lib/${OHOS_CPU}-linux-ohos
+
+# NOTE: We no longer need gfortran for OpenBLAS
+## Note: Fortran compiler should be changed with ARCH
+## Use gnu here instead of ohos: code gen only
+#FC=${OHOS_CPU}-linux-gnu-gfortran-11
+#mkdir -p ${TARGET_ROOT}/${OHOS_LIBDIR}
+#if [ ! -d ${CUR_DIR}/gfortran.libs.${OHOS_CPU} ]; then
+#    warn "cannot find library gfortran.libs.${OHOS_CPU} in ${CUR_DIR}"
+#else
+#    #cp ${CUR_DIR}/gfortran.libs.${OHOS_CPU}/* ${TARGET_ROOT}/${OHOS_LIBDIR}
+#    warn "skipping gfortran libs for open source license"
+#fi
+
+
+HOST_SYSROOT=${OHOS_SDK}/native/sysroot
+HOST_LIBC=${HOST_SYSROOT}/usr/lib/${OHOS_CPU}-linux-ohos/libc.so
+
+export CC="${OHOS_SDK}/native/llvm/bin/clang --target=${OHOS_CPU}-linux-ohos"
+export CXX="${OHOS_SDK}/native/llvm/bin/clang++ --target=${OHOS_CPU}-linux-ohos"
+export AS=${OHOS_SDK}/native/llvm/bin/llvm-as
+export LD=${OHOS_SDK}/native/llvm/bin/ld.lld
+export LDXX=${LD}
+export LLD=${LD}
+export STRIP=${OHOS_SDK}/native/llvm/bin/llvm-strip
+# let `install` to use toolchain's strip
+if [ ! -f ${OHOS_SDK}/native/llvm/bin/strip ]; then
+	pushd ${OHOS_SDK}/native/llvm/bin
+	ln -s llvm-strip strip
+	popd
+fi
+export RANLIB=${OHOS_SDK}/native/llvm/bin/llvm-ranlib
+export OBJDUMP=${OHOS_SDK}/native/llvm/bin/llvm-objdump
+export OBJCOPY=${OHOS_SDK}/native/llvm/bin/llvm-objcopy
+export READELF=${OHOS_SDK}/native/llvm/bin/llvm-readelf
+export NM=${OHOS_SDK}/native/llvm/bin/llvm-nm
+export AR=${OHOS_SDK}/native/llvm/bin/llvm-ar
+export PROFDATA=${OHOS_SDK}/native/llvm/bin/llvm-profdata
+if [ ! -f ${OHOS_SDK}/native/llvm/bin/profdata ]; then
+	pushd ${OHOS_SDK}/native/llvm/bin
+	ln -s llvm-profdata profdata
+	popd
+fi
+#export CFLAGS="-fPIC -D__MUSL__=1 -D__OPENHARMONY__=1 -I${TARGET_ROOT}/include -I${TARGET_ROOT}/include/lzma -I${TARGET_ROOT}/include/ncursesw -I${TARGET_ROOT}/include/readline -I${TARGET_ROOT}/ssl/include"
+# keep track with ohos.toolchain.cmake + CMAKE_C_FLAGS_INIT
+# including arch-dependent headers
+export CFLAGS="-fPIC -D__MUSL__ -D__OHOS__ -D__OPENHARMONY__ -Wno-shorten-64-to-32 -Wno-unused-command-line-argument -I${TARGET_ROOT}/include -I${HOST_SYSROOT}/usr/include -I${HOST_SYSROOT}/usr/include/${OHOS_CPU}-linux-ohos"
+export CXXFLAGS=${CFLAGS}
+export CPPFLAGS=${CXXFLAGS}
+#export LDFLAGS="-fuse-ld=lld -L${TARGET_ROOT}/lib -L${TARGET_ROOT}/ssl/lib64 -L${CUR_DIR}/gfortran.libs.${OHOS_CPU}"
+export LDFLAGS="-fuse-ld=lld -lm -L${TARGET_ROOT}/lib -L${HOST_SYSROOT}/usr/${OHOS_LIBDIR}"
+export LDSHARED="${CC} ${LDFLAGS} -shared"
+
+export PATH=${OHOS_SDK}/native/llvm/bin:${OHOS_SDK}/native/toolchains:$PATH
+
+export PKG_CONFIG_SYSTEM_IGNORE_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig
+export PKG_CONFIG_LIBDIR="${HOST_SYSROOT}/usr/${OHOS_LIBDIR}:${HOST_SYSROOT}/usr/${OHOS_LIBDIR}/pkgconfig"
+# export PKG_CONFIG_SYSROOT_DIR=${HOST_SYSROOT}
+
+
+################################# Helpers #################################
 
 compare_versions() {
 	local v1="$1"
@@ -415,96 +512,6 @@ patch_libdir_origin() {
 		fi
 	done
 }
-
-OLD_PATH=$PATH
-OLD_LD_LIBPATH=${LD_LIBRARY_PATH:=""}
-
-trap "export PATH=${OLD_PATH}; export LD_LIBRARY_PATH=${OLD_LD_LIBPATH}; unset CC CXX AS LD LDXX LLD STRIP RANLIB OBJDUMP OBJCOPY READELF NM AR PROFDATA CFLAGS CXXFLAGS CPPFLAGS LDFLAGS LDSHARED PKG_CONFIG_PATH PKG_CONFIG_LIBDIR PKG_CONFIG_SYSTEM_IGNORE_PATH" ERR SIGINT SIGTERM
-
-if [ -z "${OHOS_SDK:-}" ]; then
-	warn "please set OHOS_SDK env first"
-	exit 0
-fi
-OHOS_SDK_API_VERSION=$(cat ${OHOS_SDK}/toolchains/oh-uni-package.json | grep "apiVersion" | tr -d [:space:] | awk -F':' '{print $2}' | awk -F'"' '{print $2}')
-
-BUILD_PLATFORM_TRIPLET=x86_64-pc-linux-gnu
-
-CMAKE_BIN=${OHOS_SDK}/native/build-tools/cmake/bin/cmake
-CMAKE_TOOLCHAIN_CONFIG=${OHOS_SDK}/native/build/cmake/ohos.toolchain.cmake
-
-OHOS_CPU=aarch64
-OHOS_ARCH=arm64-v8a
-# OHOS_CPU=arm
-# OHOS_ARCH=armeabi-v7a
-# OHOS_CPU=x86_64
-# OHOS_ARCH=x86_64
-
-ARCH=${OHOS_ARCH}
-
-TARGET_ROOT=${CUR_DIR}/dist.${OHOS_CPU}
-TEST_DIR=${CUR_DIR}/test-only
-
-# export for cmake toolchain file
-export OHOS_LIBDIR=lib
-# Set this for OHOS sdk installation
-# export OHOS_LIBDIR=lib/${OHOS_CPU}-linux-ohos
-
-# NOTE: We no longer need gfortran for OpenBLAS
-## Note: Fortran compiler should be changed with ARCH
-## Use gnu here instead of ohos: code gen only
-#FC=${OHOS_CPU}-linux-gnu-gfortran-11
-#mkdir -p ${TARGET_ROOT}/${OHOS_LIBDIR}
-#if [ ! -d ${CUR_DIR}/gfortran.libs.${OHOS_CPU} ]; then
-#    warn "cannot find library gfortran.libs.${OHOS_CPU} in ${CUR_DIR}"
-#else
-#    #cp ${CUR_DIR}/gfortran.libs.${OHOS_CPU}/* ${TARGET_ROOT}/${OHOS_LIBDIR}
-#    warn "skipping gfortran libs for open source license"
-#fi
-
-
-HOST_SYSROOT=${OHOS_SDK}/native/sysroot
-HOST_LIBC=${HOST_SYSROOT}/usr/lib/${OHOS_CPU}-linux-ohos/libc.so
-
-export CC="${OHOS_SDK}/native/llvm/bin/clang --target=${OHOS_CPU}-linux-ohos"
-export CXX="${OHOS_SDK}/native/llvm/bin/clang++ --target=${OHOS_CPU}-linux-ohos"
-export AS=${OHOS_SDK}/native/llvm/bin/llvm-as
-export LD=${OHOS_SDK}/native/llvm/bin/ld.lld
-export LDXX=${LD}
-export LLD=${LD}
-export STRIP=${OHOS_SDK}/native/llvm/bin/llvm-strip
-# let `install` to use toolchain's strip
-if [ ! -f ${OHOS_SDK}/native/llvm/bin/strip ]; then
-	pushd ${OHOS_SDK}/native/llvm/bin
-	ln -s llvm-strip strip
-	popd
-fi
-export RANLIB=${OHOS_SDK}/native/llvm/bin/llvm-ranlib
-export OBJDUMP=${OHOS_SDK}/native/llvm/bin/llvm-objdump
-export OBJCOPY=${OHOS_SDK}/native/llvm/bin/llvm-objcopy
-export READELF=${OHOS_SDK}/native/llvm/bin/llvm-readelf
-export NM=${OHOS_SDK}/native/llvm/bin/llvm-nm
-export AR=${OHOS_SDK}/native/llvm/bin/llvm-ar
-export PROFDATA=${OHOS_SDK}/native/llvm/bin/llvm-profdata
-if [ ! -f ${OHOS_SDK}/native/llvm/bin/profdata ]; then
-	pushd ${OHOS_SDK}/native/llvm/bin
-	ln -s llvm-profdata profdata
-	popd
-fi
-#export CFLAGS="-fPIC -D__MUSL__=1 -D__OPENHARMONY__=1 -I${TARGET_ROOT}/include -I${TARGET_ROOT}/include/lzma -I${TARGET_ROOT}/include/ncursesw -I${TARGET_ROOT}/include/readline -I${TARGET_ROOT}/ssl/include"
-# keep track with ohos.toolchain.cmake + CMAKE_C_FLAGS_INIT
-# including arch-dependent headers
-export CFLAGS="-fPIC -D__MUSL__ -D__OHOS__ -D__OPENHARMONY__ -Wno-shorten-64-to-32 -Wno-unused-command-line-argument -I${TARGET_ROOT}/include -I${HOST_SYSROOT}/usr/include -I${HOST_SYSROOT}/usr/include/${OHOS_CPU}-linux-ohos"
-export CXXFLAGS=${CFLAGS}
-export CPPFLAGS=${CXXFLAGS}
-#export LDFLAGS="-fuse-ld=lld -L${TARGET_ROOT}/lib -L${TARGET_ROOT}/ssl/lib64 -L${CUR_DIR}/gfortran.libs.${OHOS_CPU}"
-export LDFLAGS="-fuse-ld=lld -lm -L${TARGET_ROOT}/lib -L${HOST_SYSROOT}/usr/${OHOS_LIBDIR}"
-export LDSHARED="${CC} ${LDFLAGS} -shared"
-
-export PATH=${OHOS_SDK}/native/llvm/bin:${OHOS_SDK}/native/toolchains:$PATH
-
-export PKG_CONFIG_SYSTEM_IGNORE_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig
-export PKG_CONFIG_LIBDIR="${HOST_SYSROOT}/usr/${OHOS_LIBDIR}:${HOST_SYSROOT}/usr/${OHOS_LIBDIR}/pkgconfig"
-# export PKG_CONFIG_SYSROOT_DIR=${HOST_SYSROOT}
 
 
 ################################# Python Relative Local Envs #################################

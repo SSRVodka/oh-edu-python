@@ -7,7 +7,7 @@ set -Eeuo pipefail
 
 CACHE_FILE=__hw_cache_misc.tar.gz
 
-SRCS="asio acl attr assimp fmt yaml-cpp libpsl curl boost eigen qhull libccd SuiteSparse gflags glog ceres-solver zstd zeromq libexpat libpng freetype g2o geographiclib tinyxml2 icu libxml2 oneTBB pcre2 swig rsync nasm YDLidar-SDK llama.cpp lz4 console_bridge"
+SRCS="asio acl attr assimp fmt yaml-cpp libpsl curl boost eigen qhull libccd SuiteSparse gflags glog gtest ceres-solver zstd zeromq libexpat libpng freetype g2o geographiclib tinyxml2 icu libxml2 oneTBB pcre2 swig rsync nasm YDLidar-SDK llama.cpp lz4 console_bridge octomap xtensor xtl xsimd nanoflann nlohmann-json"
 
 rm -rf $SRCS
 if [ "${1:-}" == "--rm" ]; then
@@ -20,8 +20,10 @@ tar -zxpvf ${CACHE_FILE}
 
 else
 
-wget_source https://github.com/chriskohlhoff/asio/archive/refs/tags/asio-1-36-0.zip
-mv asio-asio-1-36-0 asio
+# Asio 1.33.0 removed deprecated alias io_service: ROS2 humble cannot build any more
+# https://think-async.com/Asio/asio-1.36.0/doc/asio/history.html#asio.history.asio_1_33_0
+wget_source https://github.com/chriskohlhoff/asio/archive/refs/tags/asio-1-32-0.zip
+mv asio-asio-1-32-0 asio
 
 wget_source https://download.savannah.nongnu.org/releases/acl/acl-2.3.1.tar.xz
 mv acl-2.3.1 acl
@@ -56,6 +58,8 @@ mv qhull-8.1-alpha1 qhull
 wget_source https://github.com/danfis/libccd/archive/refs/tags/v2.1.zip
 mv libccd-2.1 libccd
 
+# ceres-solver 2.1.0 failed to build against suite-sparse 7.2.0
+# https://github.com/ceres-solver/ceres-solver/issues/1009
 wget_source https://github.com/DrTimothyAldenDavis/SuiteSparse/archive/refs/tags/v7.11.0.zip
 mv SuiteSparse-7.11.0 SuiteSparse
 
@@ -65,7 +69,14 @@ mv gflags-2.2.2 gflags
 wget_source https://github.com/google/glog/archive/refs/tags/v0.7.1.zip
 mv glog-0.7.1 glog
 
-wget_source https://github.com/ceres-solver/ceres-solver/archive/refs/tags/2.2.0.zip
+# googletest 1.17.0 only support C++ standard >=17
+wget_source https://github.com/google/googletest/archive/refs/tags/v1.16.0.zip
+mv googletest-1.16.0 gtest
+
+# slam_toolbox/solvers/ceres_solver.hpp:10:10: fatal error: 'ceres/local_parameterization.h' file not found
+# The ceres/local_parameterization.h header and the ceres::LocalParameterization class have been deprecated and removed in recent versions of Ceres Solver (specifically, in versions 2.2.0 and later). They have been replaced by ceres/manifold.h and ceres::Manifold.
+# So we modify the implementation of ceres-solver in slam_toolbox instead
+wget_source https://github.com/ceres-solver/ceres-solver/archive/refs/tags/2.1.0.zip
 mv ceres-solver-2.2.0 ceres-solver
 
 wget_source https://github.com/facebook/zstd/archive/refs/tags/v1.5.7.zip
@@ -124,6 +135,24 @@ mv lz4-1.10.0 lz4
 
 wget_source https://github.com/ros/console_bridge/archive/refs/tags/1.0.2.zip
 mv console_bridge-1.0.2 console_bridge
+
+wget_source https://github.com/OctoMap/octomap/archive/refs/tags/v1.9.8.zip
+mv octomap-1.9.8 octomap
+
+wget_source https://github.com/xtensor-stack/xtensor/archive/refs/tags/0.25.0.zip
+mv xtensor-0.25.0 xtensor
+
+wget_source https://github.com/xtensor-stack/xtl/archive/refs/tags/0.7.7.zip
+mv xtl-0.7.7 xtl
+
+wget_source https://github.com/xtensor-stack/xsimd/archive/refs/tags/13.2.0.zip
+mv xsimd-13.2.0 xsimd
+
+wget_source https://github.com/jlblancoc/nanoflann/archive/refs/tags/v1.8.0.zip
+mv nanoflann-1.8.0 nanoflann
+
+wget_source https://github.com/nlohmann/json/archive/refs/tags/v3.12.0.zip
+mv json-3.12.0 nlohmann-json
 
 tar -zcpvf ${CACHE_FILE} $SRCS
 
