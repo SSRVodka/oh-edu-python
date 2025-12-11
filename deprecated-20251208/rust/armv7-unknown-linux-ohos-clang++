@@ -1,0 +1,11 @@
+#!/bin/sh
+exec ${OHOS_SDK}/native/llvm/bin/clang++ \
+  -target arm-linux-ohos \
+  --sysroot=${OHOS_SDK}/native/sysroot \
+  -D__MUSL__ \
+  -march=armv7-a \
+  -mfloat-abi=softfp \
+  -mtune=generic-armv7-a \
+  -mthumb \
+  "$@"
+

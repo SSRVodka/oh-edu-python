@@ -76,7 +76,7 @@ mv googletest-1.16.0 gtest
 # slam_toolbox/solvers/ceres_solver.hpp:10:10: fatal error: 'ceres/local_parameterization.h' file not found
 # The ceres/local_parameterization.h header and the ceres::LocalParameterization class have been deprecated and removed in recent versions of Ceres Solver (specifically, in versions 2.2.0 and later). They have been replaced by ceres/manifold.h and ceres::Manifold.
 # So we modify the implementation of ceres-solver in slam_toolbox instead
-wget_source https://github.com/ceres-solver/ceres-solver/archive/refs/tags/2.1.0.zip
+wget_source https://github.com/ceres-solver/ceres-solver/archive/refs/tags/2.2.0.zip
 mv ceres-solver-2.2.0 ceres-solver
 
 wget_source https://github.com/facebook/zstd/archive/refs/tags/v1.5.7.zip

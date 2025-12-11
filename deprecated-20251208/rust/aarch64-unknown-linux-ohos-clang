@@ -1,0 +1,7 @@
+#!/bin/sh
+exec ${OHOS_SDK}/native/llvm/bin/clang \
+  -target aarch64-linux-ohos \
+  --sysroot=${OHOS_SDK}/native/sysroot \
+  -D__MUSL__ \
+  "$@"
+

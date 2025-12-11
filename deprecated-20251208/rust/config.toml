@@ -1,0 +1,12 @@
+[target.aarch64-unknown-linux-ohos]
+ar = "/sdk/native/llvm/bin/llvm-ar"
+linker = "/rust/aarch64-unknown-linux-ohos-clang"
+
+[target.armv7-unknown-linux-ohos]
+ar = "/sdk/native/llvm/bin/llvm-ar"
+linker = "/rust/armv7-unknown-linux-ohos-clang"
+
+[target.x86_64-unknown-linux-ohos]
+ar = "/sdk/native/llvm/bin/llvm-ar"
+linker = "/rust/x86_64-unknown-linux-ohos-clang"
+

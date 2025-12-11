@@ -84,6 +84,7 @@ PYTHON_PREFIX=${TARGET_ROOT}.Python
 sed -i '/.*using gcc ;/c\    using gcc : '"${OHOS_CPU}"' : '"${OHOS_SDK}"'/native/llvm/bin/'"${OHOS_CPU}"'-unknown-linux-ohos-clang ; ' project-config.jam
 echo "using python : ${PY_VERSION} : : ${PYTHON_PREFIX}/include/python${PY_VERSION} : ${PYTHON_PREFIX}/lib ;" >> project-config.jam
 # sed -i "\|${TARGET_ROOT}|! s|# \(using python :\) .* ;|\1 3.12 : ${TARGET_ROOT}.Python/bin/python3 : ${TARGET_ROOT}.Python/include/python3.12 : ${TARGET_ROOT}.Python/lib ;|" tools/build/example/user-config.jam
+
 ./b2 cxxflags="$CXXFLAGS" cflags="$CFLAGS" variant=release python=${PY_VERSION} --with-python
 ./b2 install
 
@@ -102,7 +103,6 @@ sed -i 's|^if\(NOT WIN32\)|if(NOT WIN32 AND NOT OHOS)|g' libccd/src/CMakeLists.t
 build_cmakeproj_with_deps "libccd" "" "-DBUILD_SHARED_LIBS=ON"
 # remove libm pollution
 sed -i '/IMPORTED_LINK_INTERFACE_LIBRARIES_RELEASE.*/d' ${TARGET_ROOT}.libccd/${OHOS_LIBDIR}/ccd/ccd-targets-release.cmake
-exit 0
 
 build_cmakeproj_with_deps "SuiteSparse" "gmp mpfr OpenBLAS" "-DBUILD_SHARED_LIBS=ON -DGRAPHBLAS_USE_JIT=OFF"
 

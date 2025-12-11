@@ -1,0 +1,4 @@
+not easy to write postinst in build script
+in cmake related project: write to ${TARGET_ROOT}.${libname}
+in make related project: write to ${TARGET_ROOT}
+
